@@ -90,5 +90,43 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	xtitle("") ylabel(1(1)3) xlabel(768(2)778) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/inflation_expectations.png", replace	
+	
+	* BNP Gap and Unemployment
+	
+	import excel "Data/Attachments/Riksbanken_data_forecasts_GDP_unemployment_GDP_gap.xlsx", sheet("Q utfall") clear
+	
+	keep A I J AI
+
+	rename (I J AI) (bnpgap unemp repo)
+
+	gen year  = year(A)
+	gen month = month(A)
+
+	gen period = ym(year, month)
+	format %tm period 
+
+	drop if missing(A)
+	destring bnpgap unemp repo, replace
+
+	keep period year month bnpgap unemp repo
+	order period year month bnpgap unemp repo
+
+	sort period
+	
+	drop if year < 2023
+	
+	twoway ///
+	(line bnpgap period, yaxis(1)) ///
+	(line repo period, yaxis(2)), legend(order(1 "GDP Gap (L)" 2 "Policy Rate (R)")) ///
+	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/bnpgap.png", replace
+	
+	twoway ///
+	(line unemp period, yaxis(1)) ///
+	(line repo period, yaxis(2)), legend(order(1 "Unemp. (L)" 2 "Policy Rate (R)")) ///
+	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/unemp.png", replace
 
 ********************************************************************************
