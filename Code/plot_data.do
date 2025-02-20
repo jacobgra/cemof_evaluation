@@ -65,16 +65,16 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	rename (R T V) (ie1 ie2 ie5)
 
 	gen year  = year(A)
-	gen month = month(A)
+	gen quarter = quarter(A)
 
-	gen period = ym(year, month)
-	format %tm period 
+	gen period = yq(year, quarter)
+	format %tq period 
 
 	drop if missing(A)
 	destring ie1 ie2 ie5, replace
 
-	keep period year month ie1 ie2 ie5
-	order period year month ie1 ie2 ie5
+	keep period year quarter ie1 ie2 ie5
+	order period year quarter ie1 ie2 ie5
 
 	sort period
 
@@ -84,10 +84,10 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	(line ie1 period) ///
 	(line ie2 period) ///
 	(line ie5 period), legend(off) ///
-	text(1.73 777.1 "1Y", place(e)) ///
-	text(1.95 777.1 "2Y", place(e)) ///
-	text(2.05 777.1 "5Y", place(e)) ///
-	xtitle("") ylabel(1(1)3) xlabel(768(2)778) ///
+	text(1.73 259.1 "1Y", place(e)) ///
+	text(1.95 259.1 "2Y", place(e)) ///
+	text(2.05 259.1 "5Y", place(e)) ///
+	xtitle("") ylabel(1(1)3) xlabel(256(1)259.5) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/inflation_expectations.png", replace	
 	
@@ -100,16 +100,16 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	rename (I J AI) (bnpgap unemp repo)
 
 	gen year  = year(A)
-	gen month = month(A)
+	gen quarter = quarter(A)
 
-	gen period = ym(year, month)
-	format %tm period 
+	gen period = yq(year, quarter)
+	format %tq period 
 
 	drop if missing(A)
 	destring bnpgap unemp repo, replace
 
-	keep period year month bnpgap unemp repo
-	order period year month bnpgap unemp repo
+	keep period year quarter bnpgap unemp repo
+	order period year quarter bnpgap unemp repo
 
 	sort period
 	
@@ -118,14 +118,14 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	twoway ///
 	(line bnpgap period, yaxis(1)) ///
 	(line repo period, yaxis(2)), legend(order(1 "GDP Gap (L)" 2 "Policy Rate (R)")) ///
-	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) ///
+	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) xlabel(252(2)259) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/bnpgap.png", replace
 	
 	twoway ///
 	(line unemp period, yaxis(1)) ///
 	(line repo period, yaxis(2)), legend(order(1 "Unemp. (L)" 2 "Policy Rate (R)")) ///
-	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) ///
+	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) xlabel(252(2)259) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/unemp.png", replace
 
