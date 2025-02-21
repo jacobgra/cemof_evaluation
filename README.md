@@ -1,1 +1,1 @@
-# Evalutation of Riksbank policy during 2024
+# Evaluation of Riksbank policy during 2024
