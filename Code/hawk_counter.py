@@ -23,18 +23,22 @@ def extract_word_count(text,words):
     for i in groups:
         """Handle problems with empty first string in groups of match"""
         j = 0
-        while i[j] == '':
-            j = j+1
+        try:
+            while i[j] == '':
+                j = j+1 
+        except IndexError:
+            continue
         statement = i[j]
         """Extract name of governor"""
         list = i[j].split()
         name = list[0]+" "+list[1]
+        if (name == "Kerstin af")|(name == "Kerstin af:"):
+            name = "Kerstin af Jochnick"
         """If multiple statements, add them together"""
         if name in governors:
             governors[name] = governors[name] + statement
         else:
             governors[name] = statement   
-
     for governor in governors:
         count = {}
         for elem in words:
@@ -44,13 +48,13 @@ def extract_word_count(text,words):
         governors[governor] = count
     return governors
 
-for entry in os.scandir("Data/minutes/"):
-    print(entry.path)
-
 def main():
     for entry in os.scandir("Data/minutes/"):
         extracted_date = extract_date(str(entry.path))
         pdf_file = entry.path
+        if pdf_file == "Data/minutes/.DS_Store":
+            continue
+        print(pdf_file)
         words = ['inflation','ränta ','sysselsättning','pris ','växelkurs','skuld', 'belåning']
         # Get text from PDF source
         text = ''
