@@ -9,6 +9,9 @@ with pdfplumber.open(pdf_file) as pdf:
         text = text+'\n'+str(page.extract_text())
 
 # Setup count dictionary
+governors =  {}
+
+print(governors)
 count = {}
 for elem in words:
     count[elem] = 0
