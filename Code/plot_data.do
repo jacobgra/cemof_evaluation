@@ -128,5 +128,59 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) xlabel(252(2)259) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/unemp.png", replace
+	
+	* Geopolitical risk index
+	
+	use "Data/Other/data_gpr_export.dta", clear
+	
+	gen date = dofm(month)
+	drop month 
+	
+	gen year   = year(date)
+	gen month  = month(date)
+	gen period = ym(year, month)
+	format %tm period
+	
+	keep period year month GPR GPRC_SWE
+	order period year month GPR GPRC_SWE
+		
+	egen gr_avg = mean(GPR)
+	egen gr_std = sd(GPR)
+	
+	gen gr_rel = (GPR-gr_avg)/gr_std
+	
+	egen grswe_avg = mean(GPRC_SWE)
+	egen grswe_std = sd(GPRC_SWE)
+	
+	gen grswe_rel = (GPRC_SWE-grswe_avg)/grswe_std
+	
+	egen warshock = mean(gr_rel) if year == 2022 & month < 5
+	egen curshock = mean(gr_rel) if (year == 2023 & month > 9) | (year == 2024 & month < 7)
+	
+	drop if year < 2020
+	
+	gen warind = .
+	replace warind = 319 if year == 2022 & month < 5
+	
+	gen curind = .
+	replace curind = 319 if (year == 2023 & month > 9) | (year == 2024 & month < 7) 
+	
+	twoway ///
+	(line GPR period) ///
+	(line gr_avg period) ///
+	(area warind period, color(black%20) lwidth(none none none none)) ///
+	(area curind period, color(black%20) lwidth(none none none none)), legend(off) ///
+	text(316.5 741.2 "1pp", place(e)) ///
+	text(316.5 760.8 "0.4pp", place(e)) ///
+	xtitle("") ytitle("") ytitle("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/gpr.png", replace
+		
+	twoway ///
+	(line GPRC_SWE period) ///
+	(line grswe_avg period), legend(off) ///
+	xtitle("") ytitle("") ytitle("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/gpr_swe.png", replace
 
 ********************************************************************************
