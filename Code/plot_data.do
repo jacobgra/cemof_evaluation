@@ -300,4 +300,113 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/us_unemp.png", replace
 	
+	* KI poliy rate forecasts
+	
+	import excel "Data/Attachments/Forecasts NIER/Dec 2023/Interest_rates.xlsx", sheet("F0604-20231220") clear
+	save "dec2023_tmp.dta", replace
+	
+	import excel "Data/Attachments/Forecasts NIER/Mar 2024/Interest_rates.xlsx", sheet("F0604-20240326") clear
+	save "mar2024_tmp.dta", replace
+	
+	import excel "Data/Attachments/Forecasts NIER/June 2024/Interest_rates.xlsx", sheet("F0604") clear
+	save "jun2024_tmp.dta", replace
+	
+	import excel "Data/Attachments/Forecasts NIER/Sep 2024/Interest_rates.xlsx", sheet("F0604") clear
+	save "sep2024_tmp.dta", replace
+	
+	foreach x in dec2023 mar2024 jun2024 sep2024 {
+		
+		use "`x'_tmp.dta", clear
+		erase "`x'_tmp.dta"
+		
+		keep if A == "Styrränta, euroområdet, slutet av perioden" | A == "Styrränta, USA, slutet av perioden" | C == "2023M01" 
+		
+		sxpose, clear
+		
+		drop if missing(_var1)
+		gen year  = substr(_var1, 1, 4)
+		gen month = substr(_var1, 6, 2)
+		
+		rename (_var2 _var3) (ecb_fct_`x' fed_fct_`x')
+		destring ecb_fct_`x' fed_fct_`x' year month, replace
+		
+		keep  year month ecb_fct_`x' fed_fct_`x'
+		order year month ecb_fct_`x' fed_fct_`x'
+		
+		if "`x'" == "dec2023" {
+		
+			save "fct_tmp.dta", replace
+		
+		}
+		
+		else {
+		
+			merge 1:1 year month using "fct_tmp.dta"
+			drop _merge 
+			
+			save "fct_tmp.dta", replace
+	
+		}
+	
+	} 
+		
+	import excel "Data/Attachments/Riksbanken_data_forecasts_GDP_unemployment_GDP_gap.xlsx", sheet("M utfall") clear
+	
+	keep A B AB
+
+	rename (AB) (repo)
+
+	gen year  = year(A)
+	gen month = month(A) 
+
+	drop if missing(A)
+	destring repo, replace
+	
+	keep  year month repo
+	order year month repo
+	
+	merge 1:1 year month using "fct_tmp.dta"
+	drop if _merge == 1
+	drop _merge 
+	erase "fct_tmp.dta"
+	
+	gen period = ym(year, month)
+	format %tm period
+	order period, first
+	
+	replace ecb_fct_dec2023 = . if period <= 767
+	replace fed_fct_dec2023 = . if period <= 767
+	
+	replace ecb_fct_mar2024 = . if period <= 770
+	replace fed_fct_mar2024 = . if period <= 770
+	
+	replace ecb_fct_jun2024 = . if period <= 773
+	replace fed_fct_jun2024 = . if period <= 773
+	
+	replace ecb_fct_sep2024 = . if period <= 776
+	replace fed_fct_sep2024 = . if period <= 776
+	
+	drop if year < 2024
+	drop if year > 2027
+	
+	twoway ///
+	(line ecb_fct_dec2023 period) ///
+	(line ecb_fct_mar2024 period) ///
+	(line ecb_fct_jun2024 period) ///
+	(line ecb_fct_sep2024 period) ///
+	(line repo period, lpattern(dash)), ///
+	legend(order(1 "Dec23" 2 "Mar24" 3 "Jun24" 4 "Sep24" 5 "Repo")) xtitle("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/ecb_fct.png", replace
+	
+	twoway ///
+	(line fed_fct_dec2023 period) ///
+	(line fed_fct_mar2024 period) ///
+	(line fed_fct_jun2024 period) ///
+	(line fed_fct_sep2024 period) ///
+	(line repo period, lpattern(dash)), ///
+	legend(order(1 "Dec23" 2 "Mar24" 3 "Jun24" 4 "Sep24" 5 "Repo")) xtitle("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/fed_fct.png", replace
+	
 ********************************************************************************
