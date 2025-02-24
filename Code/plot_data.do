@@ -182,5 +182,122 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	xtitle("") ytitle("") ytitle("") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/gpr_swe.png", replace
+	
+	* Aggregate outcomes and policy rates EA + US
+	
+	import excel "Data/Attachments/Assignment_figures_CPI_rates.xlsx", sheet("Sheet1") clear
+	
+	gen year  = year(A)
+	gen month = month(A)
+	
+	drop if missing(A)
+	
+	rename (D E I J L M) (ea_rat us_rat ea_cpi us_cpi ea_cpixef us_cpixef)
+	
+	destring ea_rat us_rat ea_cpi us_cpi ea_cpixef us_cpixef, replace
+	
+	gen period = ym(year, month)
+	format %tm period
+	
+	keep  period year month ea_rat us_rat ea_cpi us_cpi ea_cpixef us_cpixef
+	order period year month ea_rat us_rat ea_cpi us_cpi ea_cpixef us_cpixef
+	
+	sort period 
+	
+	gen ea_cpi_l1 = ea_cpi[_n-1]
+	gen ea_cpi_l2 = ea_cpi[_n-2]
+	
+	gen us_cpi_l1 = us_cpi[_n-1]
+	gen us_cpi_l2 = us_cpi[_n-2]
+	
+	gen ea_cpi_sh = ea_cpi_l1
+	replace ea_cpi_sh = ea_cpi_l2 if period == 769
+	
+	gen us_cpi_sh = us_cpi_l1 
+	replace us_cpi_sh = us_cpi_l2 if period == 769 | period == 772 | period == 778
+	
+	preserve 
+	
+	import excel "Data/Other/us_unemp.xlsx", sheet("Monthly") clear
+	
+	drop if _n == 1
+	
+	gen year      = substr(A, 6, 4)
+	gen month_str = substr(A, 3, 3)
+	
+	gen month = .
+	replace month = 1 if month_str == "jan"
+	replace month = 2 if month_str == "feb"
+	replace month = 3 if month_str == "mar"
+	replace month = 4 if month_str == "apr"
+	replace month = 5 if month_str == "may"
+	replace month = 6 if month_str == "jun"
+	replace month = 7 if month_str == "jul"
+	replace month = 8 if month_str == "aug"
+	replace month = 9 if month_str == "sep"
+	replace month = 10 if month_str == "oct"
+	replace month = 11 if month_str == "nov"
+	replace month = 12 if month_str == "dec"
+		
+	rename B us_unemp
+	
+	destring year us_unemp, replace 
+	
+	keep  year month us_unemp
+	order year month us_unemp
 
+	save "unemp_tmp.dta", replace
+	
+	restore 
+	
+	merge 1:1 year month using "unemp_tmp.dta"
+	keep if _merge == 3
+	drop _merge 
+	erase "unemp_tmp.dta"
+	
+	drop if year < 2024
+	
+	twoway ///
+	(line ea_rat period) ///
+	(line ea_cpi_sh period), legend(off) ///
+	xline(769 770 772 774 775 776 778, lcolor(black%30) lpattern(dash)) ///
+	text(4.1 769.1 "", place(e)) ///
+	text(4.1 770.1 "-.25", place(e)) ///
+	text(4.1 772.1 "", place(e)) /// 
+	text(4.1 774.1 "-.25", place(e)) /// 
+	text(4.1 775.1 "-.25", place(e)) ///
+	text(4.1 776.1 "-.5", place(e)) ///
+	text(4.1 778.1 "-.25", place(e)) ///
+	text(3.15 779.05 "ECB Rate", place(e)) ///
+	text(2.25 779.05 "EA CPI", place(e)) ///
+	xtitle("") xlabel(, nogrid) ylabel(1.5(0.5)4.1, nogrid) ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/ea_rat_cpi.png", replace
+	
+	twoway ///
+	(line us_rat period) ///
+	(line us_cpi_sh period), legend(off) ///
+	xline(769 770 772 774 775 776 778, lcolor(black%30) lpattern(dash)) ///
+	text(6 769.1 "", place(e)) ///
+	text(6 770.1 "-.25", place(e)) ///
+	text(6 772.1 "", place(e)) /// 
+	text(6 774.1 "-.25", place(e)) /// 
+	text(6 775.1 "-.25", place(e)) ///
+	text(6 776.1 "-.5", place(e)) ///
+	text(6 778.1 "-.25", place(e)) ///
+	text(4.68 779.05 "Fed Rate", place(e)) ///
+	text(2.75 779.05 "US CPI", place(e)) ///
+	xtitle("") xlabel(, nogrid) ylabel(, nogrid) ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/us_rat_cpi.png", replace
+	
+	twoway ///
+	(line us_rat period) ///
+	(line us_unemp period), legend(off) ///
+	text(4.64 779.05 "Fed Rate", place(e)) ///
+	text(4.1 779.05 "US UR", place(e)) ///
+	xtitle("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/us_unemp.png", replace
+	
 ********************************************************************************
