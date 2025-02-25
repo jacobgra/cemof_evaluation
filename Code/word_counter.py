@@ -34,7 +34,7 @@ def extract_word_count(text,words):
     governors =  {}
     comments_full = re.search(r'(?s)(Det ekonomiska läget och penningpolitiken)(.*?)§', text).group(2)
     comments_full = comments_full+" §"
-    groups =  re.findall(r'(?s)((?<=Förste vice riksbankschef )|(?<=Vice riksbankschef )|(?<=Riksbankschef ))(.*?)((?=Förste vice riksbankschef)|(?=Vice riksbankschef)|(?=Riksbankschef))|((?<=Förste vice riksbankschef)|(?<=Vice riksbankschef)|(?<=Riksbankschef)(.*?)§)', comments_full)
+    groups =  re.findall(r'(?s)((?<=Förste vice riksbankschef )|(?<=Vice riksbankschef )|(?<=Riksbankschef ))(.*?)((?=Förste vice riksbankschef )|(?=Vice riksbankschef )|(?=Riksbankschef )|(?=§))', comments_full)
     for i in groups:
         """Handle problems with empty first string in groups of match"""
         j = 0
@@ -90,7 +90,7 @@ def main():
             data.append(row)
     df = pd.DataFrame(data)
     df['date'] = df['date'].apply(convert_swedish_date)
-    df.to_csv('Output/governors_data.csv', index=False)
+    df.to_csv('Data/governors_data.csv', index=False)
     return None
     
 if __name__ == "__main__":
