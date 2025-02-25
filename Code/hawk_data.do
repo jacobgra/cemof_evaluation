@@ -12,3 +12,14 @@ individual governors. */
 /* Import word count data */
 	import delimited "Data/governors_data.csv", clear
     gen date_var = date(date, "YMD")
+	gen year  = year(date_var)
+	gen month = month(date_var)
+	gen period = ym(year, month)
+	
+	format %tm period 
+	sort period
+	
+	gen inf_interest = inflation/total
+	keep if governor == "Martin Flodén"
+	twoway ///
+	(line inf_interest period )
