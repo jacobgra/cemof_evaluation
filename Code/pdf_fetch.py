@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup as bs
 from urllib.request import urlopen
-from pathlib import Path
 
 
 _base = 'https://www.riksbank.se/sv/press-och-publicerat/dagordningar-och-protokoll/penningpolitiska-protokoll/?year='
