@@ -2,7 +2,6 @@
 import pdfplumber
 import re
 import os
-import pprint
 import pandas as pd
 
 
@@ -75,9 +74,9 @@ def main():
         if pdf_file == "Data/minutes/.DS_Store":
             continue
         #print(pdf_file)
-        hawk_words = ['inflation','kpif','lön','prissättning',  'energi',  'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad'] #'växelkurs','el'
-        dove_words = ['tillväxt','resursutnyttjande','arbetslöshet','sysselsättning','konjunktur', 'finansiella',  'bnp','skuld','belån','bostadsmarknad','räntekänslig' ] #'finans'
-        geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar']
+        hawk_words = ['inflation','kpif','lön','prissättning',  'energi', 'målet', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad', 'kron','växelkurs'] #'växelkurs','el'
+        dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur', 'finansiella',  'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig', 'real', 'arbets','samhället' ] #'finans' 'skuld ,'belån'
+        geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet']
         words = hawk_words + dove_words + geo_words
         # Get text from PDF source
         text = ''
@@ -86,7 +85,6 @@ def main():
                 text = text+'\n'+str(page.extract_text())
         governors = extract_word_count(text,words)
         print(extracted_date+"\n")
-        #pprint.pprint(governors)
         """Flattening the content of each governor"""
         for governor, counts in governors.items():
             row = {'date': extracted_date, 'governor': governor}
