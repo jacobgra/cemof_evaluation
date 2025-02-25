@@ -70,7 +70,7 @@ individual governors. */
 
 	gen hawk_ind_weighted = hawk_ind / inf_dist
 
-	twoway (line hawk_ind_weighted period, yaxis(1)) (line dove_ind period, yaxis(2)) 
+	twoway (line hawk_ind period, yaxis(1)) (line inf_dist period, yaxis(2)) 
 
 	twoway (line geo_ind period, yaxis(1)) 
 
