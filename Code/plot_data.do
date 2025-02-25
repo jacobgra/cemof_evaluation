@@ -145,16 +145,31 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	
 	keep period year month GPR GPRC_SWE
 	order period year month GPR GPRC_SWE
-		
-	egen gr_avg = mean(GPR)
-	egen gr_std = sd(GPR)
 	
-	gen gr_rel = (GPR-gr_avg)/gr_std
+	drop if missing(GPR)
 	
-	egen grswe_avg = mean(GPRC_SWE)
-	egen grswe_std = sd(GPRC_SWE)
+	* adjust scaling 
 	
-	gen grswe_rel = (GPRC_SWE-grswe_avg)/grswe_std
+	sort period
+	
+	gen gpr_ch     = GPR[_n]/GPR[_n-1]
+	gen gpr_swe_ch = GPRC_SWE[_n]/GPRC_SWE[_n-1]
+	
+	gen gpr_adj     = 100 if _n == 1
+	gen gpr_swe_adj = 100 if _n == 1
+	
+	replace gpr_adj     = gpr_ch[_n]*gpr_adj[_n-1] if _n > 1
+	replace gpr_swe_adj = gpr_swe_ch[_n]*gpr_swe_adj[_n-1] if _n > 1
+	
+	egen gr_avg = mean(gpr_adj)
+	egen gr_std = sd(gpr_adj)
+	
+	gen gr_rel = (gpr_adj-gr_avg)/gr_std
+	
+	egen grswe_avg = mean(gpr_swe_adj)
+	egen grswe_std = sd(gpr_swe_adj)
+	
+	gen grswe_rel = (gpr_swe_adj-grswe_avg)/grswe_std
 	
 	egen warshock = mean(gr_rel) if year == 2022 & month < 5
 	egen curshock = mean(gr_rel) if (year == 2023 & month > 9) | (year == 2024 & month < 7)
@@ -168,7 +183,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	replace curind = 319 if (year == 2023 & month > 9) | (year == 2024 & month < 7) 
 	
 	twoway ///
-	(line GPR period) ///
+	(line gpr_adj period) ///
 	(line gr_avg period) ///
 	(area warind period, color(black%20) lwidth(none none none none)) ///
 	(area curind period, color(black%20) lwidth(none none none none)), legend(off) ///
@@ -179,7 +194,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	graph export "Output/gpr.png", replace
 		
 	twoway ///
-	(line GPRC_SWE period) ///
+	(line gpr_swe_adj period) ///
 	(line grswe_avg period), legend(off) ///
 	xtitle("") ytitle("") ytitle("") ///
 	graphregion(color(white)) plotregion(color(white))
