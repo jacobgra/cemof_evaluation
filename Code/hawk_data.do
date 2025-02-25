@@ -27,17 +27,55 @@ individual governors. */
 	gen dove_ind = dove_sum / total
 	gen geo_ind = geo_sum / total
 
-	collapse (mean) hawk_ind dove_ind geo_ind, by(period)
+	* Merge with inflation time series
+	preserve
 
-	twoway (line hawk_ind period, yaxis(1)) (line dove_ind period, yaxis(2)) 
+	import excel "Data/Attachments/Riksbanken_data_forecasts_GDP_unemployment_GDP_gap.xlsx", sheet("M utfall") clear
+
+	keep A B D E G
+
+	rename (B D E G) (cpif_ind cpifxe_ind cpif_ch cpifxe_ch)
+
+	gen year  = year(A)
+	gen month = month(A)
+
+	gen period = ym(year, month)
+	format %tm period 
+
+	drop if missing(A)
+	destring cpif_ind-cpifxe_ch, replace
+
+	keep period year month cpif_ind cpifxe_ind cpif_ch cpifxe_ch
+	order period year month cpif_ind cpifxe_ind cpif_ch cpifxe_ch
+
+	sort period
+
+	gen cpif_6m   = ((cpif_ind[_n]/cpif_ind[_n-6])^(12/6) - 1)*100
+
+	drop cpif_ind cpifxe_ind
+	save "inf_tmp.dta", replace
+	
+	restore 
+	
+	merge m:1 year month using "inf_tmp.dta"
+	keep if _merge == 3
+	drop _merge 
+	erase "inf_tmp.dta"
+
+
+	collapse (mean) hawk_ind dove_ind geo_ind cpif_ch, by(period)
+
+	*Proposing a simple absolute weighting based on distance from target inflation of the hawkishness index
+	gen inf_dist = 1+abs(cpif_ch-2)
+
+	gen hawk_ind_weighted = hawk_ind / inf_dist
+
+	twoway (line hawk_ind_weighted period, yaxis(1)) (line dove_ind period, yaxis(2)) 
 
 	twoway (line geo_ind period, yaxis(1)) 
 
-
-
-
-
-	hawk_words = ['inflation','kpif','lön','prissättning', 'växelkurs', 'energi', 'el ', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad']
-    dove_words = ['tillväxt','resursutnyttjande','arbetslöshet','sysselsättning','konjunktur', 'finans', 'finansiella', 'bnp','skuld','belån','bostadsmarknad','räntekänslig' ]
+	hawk_words = ['inflation','kpif','lön','prissättning',  'energi', 'målet', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad', 'kron','växelkurs'] #'växelkurs','el'
+	dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur', 'finansiella',  'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig', 'real', 'arbets','samhället' ] #'finans' 'skuld ,'belån'
+	geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet']
 	twoway ///
 	(line energi period )

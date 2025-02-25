@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 _base = 'https://www.riksbank.se/sv/press-och-publicerat/dagordningar-och-protokoll/penningpolitiska-protokoll/?year='
-for year in range(2017,2025):
+for year in range(2017,2026):
     _URL = _base + str(year)
     # functional
     r = requests.get(_URL)
