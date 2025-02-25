@@ -6,8 +6,8 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 
 	clear all 
 	set more off, permanently
-	*cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
-	cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
+	cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
+	*cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
 
 ********************************************************************************
 /* Import data */
@@ -36,23 +36,24 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 
 	gen cpif_6m   = ((cpif_ind[_n]/cpif_ind[_n-6])^(12/6) - 1)*100
 
-	drop if year < 2024 
+	drop if period < 762 
 
 	twoway ///
 	(line cpif_ch period) ///
 	(line cpif_6m period) ///
 	(line cpifxe_ch period), legend(off) ///
-	xline(769 770 772 774 775 776 778, lcolor(black%30) lpattern(dash)) ///
-	text(4.4 769.1 "", place(e)) ///
-	text(4.4 770.1 "-.25", place(e)) ///
-	text(4.4 772.1 "", place(e)) /// 
-	text(4.4 774.1 "-.25", place(e)) /// 
-	text(4.4 775.1 "-.25", place(e)) ///
-	text(4.4 776.1 "-.5", place(e)) ///
-	text(4.4 778.1 "-.25", place(e)) ///
-	text(2.1 779.1 "CPIF-XE", place(e)) ///
-	text(1.5 779.1 "CPIF", place(e)) ///
-	text(2.3 779.1 "CPIF6M", place(e)) ///
+	xline(767 769 770 772 774 775 776 778, lcolor(black%30) lpattern(dash)) ///
+	text(8 767.1 "", place(e)) ///
+	text(8 769.1 "", place(e)) ///
+	text(8 770.1 "-.25", place(e)) ///
+	text(8 772.1 "", place(e)) /// 
+	text(8 774.1 "-.25", place(e)) /// 
+	text(8 775.1 "-.25", place(e)) ///
+	text(8 776.1 "-.5", place(e)) ///
+	text(8 778.1 "-.25", place(e)) ///
+	text(7.5 763 "CPIF-XE", place(e)) ///
+	text(4.9 763 "CPIF", place(e)) ///
+	text(2.4 763 "CPIF6M", place(e)) ///
 	xtitle("") xlabel(, nogrid) ylabel(, nogrid) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/inflation.png", replace	
