@@ -5,6 +5,7 @@ import os
 import pprint
 import pandas as pd
 
+
 def extract_date(filename):
     # Regular expression to match dates like '16 mars 2020'
     pattern = r"([0-9]*)?-([a-z]*)-([0-9]*)(?=.pdf)"
@@ -55,7 +56,7 @@ def extract_word_count(text,words):
         if name in governors:
             governors[name] = governors[name] + statement
         else:
-            governors[name] = statement   
+            governors[name] = statement.lower()
     for governor in governors:
         count = {}
         for elem in words:
@@ -74,7 +75,10 @@ def main():
         if pdf_file == "Data/minutes/.DS_Store":
             continue
         #print(pdf_file)
-        words = ['inflation','ränta ','sysselsättning','pris ','växelkurs','skuld', 'belåning']
+        hawk_words = ['inflation','kpif','lön','prissättning',  'energi',  'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad'] #'växelkurs','el'
+        dove_words = ['tillväxt','resursutnyttjande','arbetslöshet','sysselsättning','konjunktur', 'finansiella',  'bnp','skuld','belån','bostadsmarknad','räntekänslig' ] #'finans'
+        geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar']
+        words = hawk_words + dove_words + geo_words
         # Get text from PDF source
         text = ''
         with pdfplumber.open(pdf_file) as pdf:
