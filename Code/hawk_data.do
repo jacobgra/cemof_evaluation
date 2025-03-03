@@ -23,9 +23,9 @@ individual governors. */
 	egen dove_sum = rowtotal(tillväxt-räntekänslig)
 	egen geo_sum = rowtotal(geopolitisk-tullar)
 
-	gen hawk_ind = hawk_sum / total
-	gen dove_ind = dove_sum / total
-	gen geo_ind = geo_sum / total
+	gen ordsumma = hawk_sum + dove_sum 
+	gen hawk_ind = hawk_sum / ordsumma
+	gen geo_ind = geo_sum
 
 	* Merge with inflation time series
 	preserve
@@ -63,19 +63,38 @@ individual governors. */
 	erase "inf_tmp.dta"
 
 
-	collapse (mean) hawk_ind dove_ind geo_ind cpif_ch, by(period)
+	collapse (mean) hawk_ind geo_ind cpif_ch, by(period)
 
 	*Proposing a simple absolute weighting based on distance from target inflation of the hawkishness index
 	gen inf_dist = 1+abs(cpif_ch-2)
 
 	gen hawk_ind_weighted = hawk_ind / inf_dist
 
-	twoway (line hawk_ind period, yaxis(1)) (line inf_dist period, yaxis(2)) 
-
-	twoway (line geo_ind period, yaxis(1)) 
+	twoway line hawk_ind period if governor == "Martin Flodén" || ///
+		line hawk_ind period if governor == "Henry Ohlsson" || ///
+		line hawk_ind period if governor == "Per Jansson" || ///
+		line hawk_ind period if governor == "Kerstin af Jochnick" || ///
+		line hawk_ind period if governor == "Cecilia Skingsley" || ///
+		line hawk_ind period if governor == "Anna Breman" || ///
+		line hawk_ind period if governor == "Eva Srejber" || ///
+		line hawk_ind period if governor == "Lars Nyberg" || ///
+		line hawk_ind period if governor == "Barbro Wickman-Parak" || ///
+		line hawk_ind period if governor == "Svante Öberg" || ///
+		line hawk_ind period if governor == "Lars Heikensten" || ///
+		line hawk_ind period if governor == "Stefan Ingves" || ///
+		line hawk_ind period if governor == "Villy Bergström" || ///
+		line hawk_ind period if governor == "Urban Bäckström" || ///
+		line hawk_ind period if governor == "Karin Sjövall" || ///
+		line hawk_ind period if governor == "Kerstin Hessius" || ///
+		line hawk_ind period if governor == "Lars Wohlin",  legend(order(1 "Martin Flodén" 2 "Henry Ohlsson" 3 "Per Jansson" 4 "Kerstin af Jochnick" 5 "Cecilia Skingsley" 6 "Anna Breman" 7 "Eva Srejber" 8 "Lars Nyberg" 9 "Barbro Wickman-Parak" 10 "Svante Öberg" 11 "Lars Heikensten" 12 "Stefan Ingves" 13 "Villy Bergström" 14 "Urban Bäckström" 15 "Karin Sjövall" 16 "Kerstin Hessius") ) ///
+		title("Net Hawkishness Index of Riksbank Governors", size(medium)) ytitle("Net Hawkishness Index") xtitle("Period") ///
+		legend(rows(4) pos(1) ring(0) col(1)) ///
+		graphregion(color(white)) ///
+		plotregion(color(white)) ///
+		name(hawk_ind, replace) 
 
 	hawk_words = ['inflation','kpif','lön','prissättning',  'energi', 'målet', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad', 'kron','växelkurs'] #'växelkurs','el'
 	dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur', 'finansiella',  'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig', 'real', 'arbets','samhället' ] #'finans' 'skuld ,'belån'
 	geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet']
-	twoway ///
-	(line energi period )
+	
+	twoway line hawk_ind period,yaxis(1) legend(order(1 "Hawkishness" ) )
