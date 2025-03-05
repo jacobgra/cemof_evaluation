@@ -7,7 +7,7 @@ individual governors. */
 
 	clear all 
 	set more off, permanently
-    cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
+    cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
 ********************************************************************************
 /* Import word count data */
 	import delimited "Data/old_governors_data.csv", clear
@@ -52,6 +52,12 @@ individual governors. */
 	append using "gov_tmp.dta"
 	erase "gov_tmp.dta
 
+	twoway (line hawk_ind period if governor == "Martin Flodén") /// 
+	(line hawk_ind period if governor == "Per Jansson") ///
+	(line hawk_ind period if governor == "Stefan Ingves") ///
+	(line hawk_ind period if governor == "Lars E.O. Svensson") ///
+	, legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Stefan Ingves" 4 "Lars E.O. Svensson")) ytitle("Hawkishness index") xtitle("Time") title("Hawkishness index of individual governors")
+
 	* Merge with inflation time series
 	preserve
 
@@ -91,7 +97,7 @@ individual governors. */
 	collapse (mean) hawk_ind geo_ind cpif_ch, by(period)
 
 	* Extracting the residuals of the index while controlling for inflation (put into equally sized bins)
-	fastxtile inflation_bin = cpif_ch, n(4)
+	fastxtile inflation_bin = cpif_ch, n(5)
 	reghdfe hawk_ind, a(inflation_bin) resid 
 	rename _reghdfe_resid res_hawk
 
@@ -100,8 +106,8 @@ individual governors. */
 
 	gen hawk_ind_weighted = hawk_ind / inf_dist
 
-	*hawk_words = ['inflation','kpif','lön','prissättning',  'energi', 'målet', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad', 'kron','växelkurs'] #'växelkurs','el'
-	*dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur', 'finansiella',  'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig', 'real', 'arbets','samhället' ] #'finans' 'skuld ,'belån'
-	*geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet']
+	hawk_words = ['inflation','kpif','lön','prissättning',  'energi', 'målet', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad', 'kron','växelkurs'] #'växelkurs','el'
+	dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur', 'finansiella',  'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig', 'real', 'arbets','samhället' ] #'finans' 'skuld ,'belån'
+	geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet']
 	
-	twoway line res_hawk period, yaxis(1) legend(order(1 "Hawkishness" ) )
+	twoway (line res_hawk period, yaxis(1) ) (line hawk_ind period, yaxis(2) ), legend( order(1 "Res" 2 "Hawk_ind"))
