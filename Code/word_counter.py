@@ -77,7 +77,7 @@ def main():
     data = []
     num_minutes = 0
     """Choose whether to analyse old or new minutes"""
-    older = True
+    older = False
     if older == False:
         datadir = "Data/minutes/"
         storedir = "Data/governors_data.csv"
