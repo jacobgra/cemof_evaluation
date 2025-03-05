@@ -74,7 +74,8 @@ def extract_word_count(text,words):
 
 def main():
     data = []
-    older = True
+    """Choose whether to analyse old or new minutes"""
+    older = False
     if older == False:
         datadir = "Data/minutes/"
         storedir = "Data/governors_data.csv"

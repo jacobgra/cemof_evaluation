@@ -43,9 +43,9 @@ individual governors. */
 	egen dove_sum = rowtotal(tillväxt-räntekänslig)
 	egen geo_sum = rowtotal(geopolitisk-tullar)
 
-	gen ordsumma = hawk_sum + dove_sum 
+	gen ordsumma = hawk_sum + dove_sum + geo_sum
 	gen hawk_ind = hawk_sum / ordsumma
-	gen geo_ind = geo_sum
+	gen geo_ind = geo_sum / ordsumma
 	save "gov_tmp.dta", replace
 	
 	restore 
@@ -93,8 +93,7 @@ individual governors. */
 	* Extracting the residuals of the index while controlling for inflation (put into equally sized bins)
 	fastxtile inflation_bin = cpif_ch, n(4)
 	reghdfe hawk_ind, a(inflation_bin) resid 
-	predict res_hawk, resid
-
+	rename _reghdfe_resid res_hawk
 
 	*Proposing a simple absolute weighting based on distance from target inflation of the hawkishness index
 	gen inf_dist = 1+abs(cpif_ch-2)
