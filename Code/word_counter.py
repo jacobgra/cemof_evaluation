@@ -2,19 +2,23 @@
 import pdfplumber
 import re
 import os
-import pprint
 import pandas as pd
+import timeit
 
+# set directory
+from os import chdir
+chdir('/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation')
 
 def extract_date(filename):
-    # Regular expression to match dates like '16 mars 2020'
     pattern = r"([0-9]*)?-([a-z]*)-([0-9]*)(?=.pdf)"
+    if filename.startswith('Data/older_minutes/pro_'):
+        pattern = r"([0-9]{2})?([0-9]{2})([0-9]{2})"
+    # Regular expression to match dates like '16 mars 2020'
     # Search for the date pattern in the filename
     match = re.search(pattern, filename)
     if match:
         return f"{match.group(1)} {match.group(2)} {match.group(3)}"
     return None
-
 
 
 def convert_swedish_date(swedish_date):
@@ -50,6 +54,8 @@ def extract_word_count(text,words):
         name = list[0]+" "+list[1]
         if (name == "Kerstin af")|(name == "Kerstin af:"):
             name = "Kerstin af Jochnick"
+        if (name == "Lars E.O.")|(name == "Lars E.O.:"):
+            name = "Lars E.O. Svensson"
         if name.endswith(':'):
             name = name[:-1]
         """If multiple statements, add them together"""
@@ -69,15 +75,24 @@ def extract_word_count(text,words):
 
 def main():
     data = []
-    for entry in os.scandir("Data/minutes/"):
+    num_minutes = 0
+    """Choose whether to analyse old or new minutes"""
+    older = True
+    if older == False:
+        datadir = "Data/minutes/"
+        storedir = "Data/governors_data.csv"
+    else:
+        datadir = "Data/older_minutes/"
+        storedir = "Data/old_governors_data.csv"
+    for entry in os.scandir(datadir):
+        num_minutes += 1
         extracted_date = extract_date(str(entry.path))
         pdf_file = entry.path
-        if pdf_file == "Data/minutes/.DS_Store":
+        if pdf_file.endswith(".DS_Store"):
             continue
-        #print(pdf_file)
-        hawk_words = ['inflation','kpif','lön','prissättning',  'energi',  'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad'] #'växelkurs','el'
-        dove_words = ['tillväxt','resursutnyttjande','arbetslöshet','sysselsättning','konjunktur', 'finansiella',  'bnp','skuld','belån','bostadsmarknad','räntekänslig' ] #'finans'
-        geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar']
+        hawk_words = ['inflation','kpif','lön','prissättning',  'energi', 'målet', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad', 'kron','växelkurs'] #'växelkurs','el'
+        dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur', 'finansiella',  'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig', 'real', 'arbets','samhället' ] #'finans' 'skuld ,'belån'
+        geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet']
         words = hawk_words + dove_words + geo_words
         # Get text from PDF source
         text = ''
@@ -85,17 +100,23 @@ def main():
             for i, page in enumerate(pdf.pages):
                 text = text+'\n'+str(page.extract_text())
         governors = extract_word_count(text,words)
-        print(extracted_date+"\n")
-        #pprint.pprint(governors)
+        #print(extracted_date+"\n")
+        if older == True:
+            extracted_date = pd.to_datetime(extracted_date, format="%y %m %d")
         """Flattening the content of each governor"""
         for governor, counts in governors.items():
             row = {'date': extracted_date, 'governor': governor}
             row.update(counts)
             data.append(row)
     df = pd.DataFrame(data)
-    df['date'] = df['date'].apply(convert_swedish_date)
-    df.to_csv('Data/governors_data.csv', index=False)
+    if older == False:
+        df['date'] = df['date'].apply(convert_swedish_date)
+    else:
+        pass
+    df.to_csv(storedir, index=False)
+    print(f"Minutes processed: {num_minutes}")
     return None
     
 if __name__ == "__main__":
     main()
+    
