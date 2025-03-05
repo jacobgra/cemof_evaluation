@@ -7,9 +7,12 @@ individual governors. */
 
 	clear all 
 	set more off, permanently
-    cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
+    *cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
+	cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
+	
 ********************************************************************************
 /* Import word count data */
+	
 	import delimited "Data/old_governors_data.csv", clear
     gen date_var = date(date, "YMD")
 	gen year  = year(date_var)
@@ -19,9 +22,9 @@ individual governors. */
 	format %tm period 
 	sort period
 
-	egen hawk_sum = rowtotal(kpif-kostnad)
-	egen dove_sum = rowtotal(tillväxt-räntekänslig)
-	egen geo_sum = rowtotal(geopolitisk-tullar)
+	egen hawk_sum = rowtotal(inflation-växelkurs)
+	egen dove_sum = rowtotal(tillväxt-samhället)
+	egen geo_sum = rowtotal(geopolitisk-osäkerhet)
 
 	gen ordsumma = hawk_sum + dove_sum 
 	gen hawk_ind = hawk_sum / ordsumma
@@ -39,75 +42,80 @@ individual governors. */
 	format %tm period 
 	sort period
 
-	egen hawk_sum = rowtotal(kpif-kostnad)
-	egen dove_sum = rowtotal(tillväxt-räntekänslig)
-	egen geo_sum = rowtotal(geopolitisk-tullar)
+	egen hawk_sum = rowtotal(inflation-växelkurs)
+	egen dove_sum = rowtotal(tillväxt-samhället)
+	egen geo_sum = rowtotal(geopolitisk-osäkerhet)
 
-	gen ordsumma = hawk_sum + dove_sum + geo_sum
+	gen ordsumma = hawk_sum + dove_sum
 	gen hawk_ind = hawk_sum / ordsumma
-	gen geo_ind = geo_sum / ordsumma
+	gen geo_ind = geo_sum
 	save "gov_tmp.dta", replace
 	
 	restore 
 	append using "gov_tmp.dta"
 	erase "gov_tmp.dta
-
-	twoway (line hawk_ind period if governor == "Martin Flodén") /// 
-	(line hawk_ind period if governor == "Per Jansson") ///
-	(line hawk_ind period if governor == "Stefan Ingves") ///
-	(line hawk_ind period if governor == "Lars E.O. Svensson") ///
-	, legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Stefan Ingves" 4 "Lars E.O. Svensson")) ytitle("Hawkishness index") xtitle("Time") title("Hawkishness index of individual governors")
-
+	
 	* Merge with inflation time series
 	preserve
 
-	import excel "Data/Attachments/Riksbanken_data_forecasts_GDP_unemployment_GDP_gap.xlsx", sheet("M utfall") clear
+	import excel "Data/Other/KPIF.xlsx", clear
+	
+	destring B, replace force
+	drop if missing(B)
+	
+	gen year  = substr(A, 1, 4)
+	gen month = substr(A, 6, 2)
+	destring year month, replace 
+	
+	gen period = ym(year,month)	
+	replace period = period + 1 // lag by one period
+	format %tm period
+	
+	rename B kpif_val
+	
+	keep period kpif_val 
+	order period kpif_val
 
-	keep A B D E G
-
-	rename (B D E G) (cpif_ind cpifxe_ind cpif_ch cpifxe_ch)
-
-	gen year  = year(A)
-	gen month = month(A)
-
-	gen period = ym(year, month)
-	format %tm period 
-
-	drop if missing(A)
-	destring cpif_ind-cpifxe_ch, replace
-
-	keep period year month cpif_ind cpifxe_ind cpif_ch cpifxe_ch
-	order period year month cpif_ind cpifxe_ind cpif_ch cpifxe_ch
-
-	sort period
-
-	gen cpif_6m   = ((cpif_ind[_n]/cpif_ind[_n-6])^(12/6) - 1)*100
-
-	drop cpif_ind cpifxe_ind
 	save "inf_tmp.dta", replace
 	
 	restore 
 	
-	merge m:1 year month using "inf_tmp.dta"
+	merge m:1 period using "inf_tmp.dta"
 	keep if _merge == 3
 	drop _merge 
 	erase "inf_tmp.dta"
-
 	
-	collapse (mean) hawk_ind geo_ind cpif_ch, by(period)
-
-	* Extracting the residuals of the index while controlling for inflation (put into equally sized bins)
-	fastxtile inflation_bin = cpif_ch, n(5)
-	reghdfe hawk_ind, a(inflation_bin) resid 
+	* construct inflation bins 
+	gen kpif_bin = .
+	replace kpif_bin = 1 if kpif_val < 1.5 // low inflation
+	replace kpif_bin = 2 if kpif_val >= 1.5 & kpif_val < 2.5 // inflation at target
+	replace kpif_bin = 3 if kpif_val >= 2.5 & kpif_val < 4 // high inflation
+	replace kpif_bin = 4 if kpif_val >= 4 // very high inflation
+	
+	* extract index residuals by removing governor/kpif_bin averages
+	reghdfe hawk_ind, absorb(kpif_bin) resid 
 	rename _reghdfe_resid res_hawk
-
-	*Proposing a simple absolute weighting based on distance from target inflation of the hawkishness index
-	gen inf_dist = 1+abs(cpif_ch-2)
-
-	gen hawk_ind_weighted = hawk_ind / inf_dist
-
-	hawk_words = ['inflation','kpif','lön','prissättning',  'energi', 'målet', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad', 'kron','växelkurs'] #'växelkurs','el'
-	dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur', 'finansiella',  'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig', 'real', 'arbets','samhället' ] #'finans' 'skuld ,'belån'
-	geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet']
 	
-	twoway (line res_hawk period, yaxis(1) ) (line hawk_ind period, yaxis(2) ), legend( order(1 "Res" 2 "Hawk_ind"))
+	* plot indices for specific governors
+	twoway (line res_hawk period if governor == "Martin Flodén") /// 
+	(line res_hawk period if governor == "Per Jansson") ///
+	(line res_hawk period if governor == "Stefan Ingves") ///
+	(line res_hawk period if governor == "Anna Breman"), ///
+	legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Stefan Ingves" 4 "Anna Breman")) ///
+	ytitle("Hawkishness index") xtitle("Time") title("Hawkishness index of individual governors") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/hawk_res_governor.png", replace
+	
+	* aggregate over governors
+	collapse (sum) hawk_sum-ordsumma (mean) kpif_bin, by(period)
+	
+	gen hawk_ind = hawk_sum / ordsumma
+	reghdfe hawk_ind, absorb(kpif_bin) resid 
+	rename _reghdfe_resid res_hawk
+	
+	* plot aggregate index
+	twoway (line res_hawk period), ///
+	legend(off) ///
+	ytitle("Hawkishness index") xtitle("Time") title("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/hawk_res.png", replace
