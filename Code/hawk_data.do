@@ -52,11 +52,16 @@ individual governors. */
 	append using "gov_tmp.dta"
 	erase "gov_tmp.dta
 
+	* Non residualized plot
 	twoway (line hawk_ind period if governor == "Martin Flodén") /// 
 	(line hawk_ind period if governor == "Per Jansson") ///
 	(line hawk_ind period if governor == "Stefan Ingves") ///
 	(line hawk_ind period if governor == "Lars E.O. Svensson") ///
-	, legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Stefan Ingves" 4 "Lars E.O. Svensson")) ytitle("Hawkishness index") xtitle("Time") title("Hawkishness index of individual governors")
+	(line hawk_ind period if governor == "Kerstin af Jochnick") ///
+	(line hawk_ind period if governor == "Cecilia Skingsley") ///
+	(line hawk_ind period if governor == "Henry Ohlsson") ///
+	(line hawk_ind period if governor == "Anna Breman") ///
+	, legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Stefan Ingves" 4 "Lars E.O. Svensson" 5 "Kerstin af Jochnick" 6 "Cecilia Skingsley" 7 "Henry Ohlsson" 8 "Anna Breman")) ytitle("Hawkishness index") xtitle("Time") title("Hawkishness index of individual governors")
 
 	* Merge with inflation time series
 	preserve

@@ -1,9 +1,11 @@
-"""This is a proof of concept word counter of words from minutes of the Swedish central bank. Every governor's statements are extracted and counted for the words in the list 'words'. The code is not optimized and is only a proof of concept."""
+"""
+This scropt counts words in the minutes of the Riksbank. It makes use of the very simple word counter built into Python. 
+No regard is taken to the case of the words.
+"""
 import pdfplumber
 import re
 import os
 import pandas as pd
-import timeit
 
 # set directory
 from os import chdir
