@@ -3,9 +3,7 @@ import pdfplumber
 import re
 import os
 import pandas as pd
-
-
-
+import timeit
 
 def extract_date(filename):
     pattern = r"([0-9]*)?-([a-z]*)-([0-9]*)(?=.pdf)"
@@ -17,7 +15,6 @@ def extract_date(filename):
     if match:
         return f"{match.group(1)} {match.group(2)} {match.group(3)}"
     return None
-
 
 
 def convert_swedish_date(swedish_date):
@@ -74,6 +71,7 @@ def extract_word_count(text,words):
 
 def main():
     data = []
+    num_minutes = 0
     """Choose whether to analyse old or new minutes"""
     older = False
     if older == False:
@@ -83,6 +81,7 @@ def main():
         datadir = "Data/older_minutes/"
         storedir = "Data/old_governors_data.csv"
     for entry in os.scandir(datadir):
+        num_minutes += 1
         extracted_date = extract_date(str(entry.path))
         pdf_file = entry.path
         if pdf_file.endswith(".DS_Store"):
@@ -97,7 +96,7 @@ def main():
             for i, page in enumerate(pdf.pages):
                 text = text+'\n'+str(page.extract_text())
         governors = extract_word_count(text,words)
-        print(extracted_date+"\n")
+        #print(extracted_date+"\n")
         if older == True:
             extracted_date = pd.to_datetime(extracted_date, format="%y %m %d")
         """Flattening the content of each governor"""
@@ -111,7 +110,9 @@ def main():
     else:
         pass
     df.to_csv(storedir, index=False)
+    print(f"Minutes processed: {num_minutes}")
     return None
     
 if __name__ == "__main__":
     main()
+    
