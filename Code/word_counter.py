@@ -5,6 +5,10 @@ import os
 import pandas as pd
 import timeit
 
+# set directory
+from os import chdir
+chdir('/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation')
+
 def extract_date(filename):
     pattern = r"([0-9]*)?-([a-z]*)-([0-9]*)(?=.pdf)"
     if filename.startswith('Data/older_minutes/pro_'):
@@ -73,7 +77,7 @@ def main():
     data = []
     num_minutes = 0
     """Choose whether to analyse old or new minutes"""
-    older = False
+    older = True
     if older == False:
         datadir = "Data/minutes/"
         storedir = "Data/governors_data.csv"

@@ -6,8 +6,8 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 
 	clear all 
 	set more off, permanently
-	*cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
-	cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
+	cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
+	*cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
 
 ********************************************************************************
 /* Import data */
@@ -36,23 +36,24 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 
 	gen cpif_6m   = ((cpif_ind[_n]/cpif_ind[_n-6])^(12/6) - 1)*100
 
-	drop if year < 2024 
+	drop if period < 762 
 
 	twoway ///
 	(line cpif_ch period) ///
 	(line cpif_6m period) ///
 	(line cpifxe_ch period), legend(off) ///
-	xline(769 770 772 774 775 776 778, lcolor(black%30) lpattern(dash)) ///
-	text(4.4 769.1 "", place(e)) ///
-	text(4.4 770.1 "-.25", place(e)) ///
-	text(4.4 772.1 "", place(e)) /// 
-	text(4.4 774.1 "-.25", place(e)) /// 
-	text(4.4 775.1 "-.25", place(e)) ///
-	text(4.4 776.1 "-.5", place(e)) ///
-	text(4.4 778.1 "-.25", place(e)) ///
-	text(2.1 779.1 "CPIF-XE", place(e)) ///
-	text(1.5 779.1 "CPIF", place(e)) ///
-	text(2.3 779.1 "CPIF6M", place(e)) ///
+	xline(767 769 770 772 774 775 776 778, lcolor(black%30) lpattern(dash)) ///
+	text(8 767.1 "", place(e)) ///
+	text(8 769.1 "", place(e)) ///
+	text(8 770.1 "-.25", place(e)) ///
+	text(8 772.1 "", place(e)) /// 
+	text(8 774.1 "-.25", place(e)) /// 
+	text(8 775.1 "-.25", place(e)) ///
+	text(8 776.1 "-.5", place(e)) ///
+	text(8 778.1 "-.25", place(e)) ///
+	text(7.5 763 "CPIF-XE", place(e)) ///
+	text(4.9 763 "CPIF", place(e)) ///
+	text(2.4 763 "CPIF6M", place(e)) ///
 	xtitle("") xlabel(, nogrid) ylabel(, nogrid) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/inflation.png", replace	
@@ -144,16 +145,31 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	
 	keep period year month GPR GPRC_SWE
 	order period year month GPR GPRC_SWE
-		
-	egen gr_avg = mean(GPR)
-	egen gr_std = sd(GPR)
 	
-	gen gr_rel = (GPR-gr_avg)/gr_std
+	drop if missing(GPR)
 	
-	egen grswe_avg = mean(GPRC_SWE)
-	egen grswe_std = sd(GPRC_SWE)
+	* adjust scaling 
 	
-	gen grswe_rel = (GPRC_SWE-grswe_avg)/grswe_std
+	sort period
+	
+	gen gpr_ch     = GPR[_n]/GPR[_n-1]
+	gen gpr_swe_ch = GPRC_SWE[_n]/GPRC_SWE[_n-1]
+	
+	gen gpr_adj     = 100 if _n == 1
+	gen gpr_swe_adj = 100 if _n == 1
+	
+	replace gpr_adj     = gpr_ch[_n]*gpr_adj[_n-1] if _n > 1
+	replace gpr_swe_adj = gpr_swe_ch[_n]*gpr_swe_adj[_n-1] if _n > 1
+	
+	egen gr_avg = mean(gpr_adj)
+	egen gr_std = sd(gpr_adj)
+	
+	gen gr_rel = (gpr_adj-gr_avg)/gr_std
+	
+	egen grswe_avg = mean(gpr_swe_adj)
+	egen grswe_std = sd(gpr_swe_adj)
+	
+	gen grswe_rel = (gpr_swe_adj-grswe_avg)/grswe_std
 	
 	egen warshock = mean(gr_rel) if year == 2022 & month < 5
 	egen curshock = mean(gr_rel) if (year == 2023 & month > 9) | (year == 2024 & month < 7)
@@ -167,7 +183,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	replace curind = 319 if (year == 2023 & month > 9) | (year == 2024 & month < 7) 
 	
 	twoway ///
-	(line GPR period) ///
+	(line gpr_adj period) ///
 	(line gr_avg period) ///
 	(area warind period, color(black%20) lwidth(none none none none)) ///
 	(area curind period, color(black%20) lwidth(none none none none)), legend(off) ///
@@ -178,7 +194,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	graph export "Output/gpr.png", replace
 		
 	twoway ///
-	(line GPRC_SWE period) ///
+	(line gpr_swe_adj period) ///
 	(line grswe_avg period), legend(off) ///
 	xtitle("") ytitle("") ytitle("") ///
 	graphregion(color(white)) plotregion(color(white))
