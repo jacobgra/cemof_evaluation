@@ -6,8 +6,8 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 
 	clear all 
 	set more off, permanently
-	cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
-	*cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
+	*cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
+	cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
 
 ********************************************************************************
 /* Import data */
@@ -181,6 +181,8 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	
 	gen curind = .
 	replace curind = 319 if (year == 2023 & month > 9) | (year == 2024 & month < 7) 
+
+	save "Data/gpr_data.dta", replace
 	
 	twoway ///
 	(line gpr_adj period) ///
