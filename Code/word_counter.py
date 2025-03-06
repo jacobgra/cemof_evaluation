@@ -9,7 +9,7 @@ import pandas as pd
 
 # set directory
 from os import chdir
-chdir('/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation')
+#chdir('/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation')
 
 def extract_date(filename):
     pattern = r"([0-9]*)?-([a-z]*)-([0-9]*)(?=.pdf)"
@@ -79,7 +79,7 @@ def main():
     data = []
     num_minutes = 0
     """Choose whether to analyse old or new minutes"""
-    older = False
+    older = True
     if older == False:
         datadir = "Data/minutes/"
         storedir = "Data/governors_data.csv"
@@ -94,7 +94,7 @@ def main():
             continue
         hawk_words = ['inflation','kpif','lön','prissättning',  'energi', 'målet', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad', 'kron','växelkurs'] #'växelkurs','el'
         dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur', 'finansiella',  'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig', 'real', 'arbets','samhället' ] #'finans' 'skuld ,'belån'
-        geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet']
+        geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet','krig']
         words = hawk_words + dove_words + geo_words
         # Get text from PDF source
         text = ''

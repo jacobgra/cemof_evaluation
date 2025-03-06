@@ -25,6 +25,7 @@ individual governors. */
 	egen hawk_sum = rowtotal(inflation-växelkurs)
 	egen dove_sum = rowtotal(tillväxt-samhället)
 	egen geo_sum = rowtotal(geopolitisk-osäkerhet)
+	egen geo_sum_k = rowtotal(geopolitisk-krig)
 
 	gen ordsumma = hawk_sum + dove_sum 
 	gen hawk_ind = hawk_sum / ordsumma
@@ -45,10 +46,12 @@ individual governors. */
 	egen hawk_sum = rowtotal(inflation-växelkurs)
 	egen dove_sum = rowtotal(tillväxt-samhället)
 	egen geo_sum = rowtotal(geopolitisk-osäkerhet)
+	egen geo_sum_k = rowtotal(geopolitisk-krig)
+
 
 	gen ordsumma = hawk_sum + dove_sum
 	gen hawk_ind = hawk_sum / ordsumma
-	gen geo_ind = geo_sum
+	gen geo_ind = geo_sum / (ordsumma + geo_sum)
 	save "gov_tmp.dta", replace
 	
 	restore 
@@ -150,6 +153,8 @@ individual governors. */
 	collapse (sum) hawk_sum-ordsumma (mean) kpif_bin, by(period)
 	
 	gen hawk_ind = hawk_sum / ordsumma
+	gen geo_ind = geo_sum / (ordsumma + geo_sum)
+	gen geo_ind_k = geo_sum_k / (ordsumma + geo_sum_k)
 	reghdfe hawk_ind, absorb(kpif_bin) resid 
 	rename _reghdfe_resid res_hawk
 	
@@ -159,3 +164,10 @@ individual governors. */
 	ytitle("Hawkishness index") xtitle("Time") title("") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/hawk_res.png", replace
+
+	* plot geo index
+	twoway (line geo_ind period) (line geo_ind_k period), ///
+	ytitle("Geopolitical index") xtitle("Time") title("") legend(order(1 "Base " 2 "With word 'krig'")) ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/geo_ind.png", replace
+
