@@ -7,8 +7,8 @@ individual governors. */
 
 	clear all 
 	set more off, permanently
-    *cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
-	cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
+    cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
+	*cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
 	
 ********************************************************************************
 /* Import word count data */
@@ -84,6 +84,47 @@ individual governors. */
 	keep if _merge == 3
 	drop _merge 
 	erase "inf_tmp.dta"
+
+	* extracting unanimosity data from votes
+	preserve 
+	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting")  cellrange(F56:GI56) clear
+	sxpose, clear force
+	rename _var1 unanimousity
+	destring unanimousity, force replace
+	save "voting_tmp.dta", replace
+	restore
+
+	preserve 
+	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting") cellrange(F3:GI3) clear
+	sxpose, clear force
+	rename _var1 date
+	destring date, force replace
+	format %td date
+	gen period = mofd(date)
+	format %tm period
+	merge 1:1 _n using "voting_tmp.dta", force
+	drop _merge date
+	duplicates drop period, force
+	erase "voting_tmp.dta"
+	save "enighet_tmp.dta", replace
+	restore
+	preserve
+
+
+	* create variance measure for each time period as a proxy for unity of the board (also adding unanimosity measure)
+	collapse (sd) hawk_ind, by(period)
+	merge 1:1 period using "enighet_tmp.dta"
+	keep if _merge == 3
+	drop _merge
+	erase "enighet_tmp.dta"
+	restore
+
+	twoway (line hawk_ind period, yaxis(1)) (line unanimousity period, yaxis(2)), ///
+	legend(off) ///
+	ytitle("S.d. of hawkishness index") xtitle("Time") title("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/hawk_sd.png", replace
+	restore
 	
 	* construct inflation bins 
 	gen kpif_bin = .
