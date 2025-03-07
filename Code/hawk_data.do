@@ -108,16 +108,14 @@ individual governors. */
 	erase "voting_tmp.dta"
 	save "enighet_tmp.dta", replace
 	restore
-	preserve
-
 
 	* create variance measure for each time period as a proxy for unity of the board (also adding unanimosity measure)
+	preserve
 	collapse (sd) hawk_ind, by(period)
 	merge 1:1 period using "enighet_tmp.dta"
 	keep if _merge == 3
 	drop _merge
 	erase "enighet_tmp.dta"
-	restore
 
 	twoway (line hawk_ind period, yaxis(1)) (line unanimousity period, yaxis(2)), ///
 	legend(off) ///
