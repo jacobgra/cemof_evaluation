@@ -111,45 +111,6 @@ individual governors. */
 	drop _merge 
 	erase "unemp_tmp.dta"
 
-	* extracting unanimosity data from votes
-	preserve 
-	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting")  cellrange(F56:GI56) clear
-	sxpose, clear force
-	rename _var1 unanimousity
-	destring unanimousity, force replace
-	save "voting_tmp.dta", replace
-	restore
-
-	preserve 
-	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting") cellrange(F3:GI3) clear
-	sxpose, clear force
-	rename _var1 date
-	destring date, force replace
-	format %td date
-	gen period = mofd(date)
-	format %tm period
-	merge 1:1 _n using "voting_tmp.dta", force
-	drop _merge date
-	duplicates drop period, force
-	erase "voting_tmp.dta"
-	save "enighet_tmp.dta", replace
-	restore
-
-	* create variance measure for each time period as a proxy for unity of the board (also adding unanimosity measure)
-	preserve
-	collapse (sd) hawk_ind, by(period)
-	merge 1:1 period using "enighet_tmp.dta"
-	keep if _merge == 3
-	drop _merge
-	erase "enighet_tmp.dta"
-
-	twoway (line hawk_ind period, yaxis(1)) (line unanimousity period, yaxis(2)), ///
-	legend(off) ///
-	ytitle("S.d. of hawkishness index") xtitle("Time") title("") ///
-	graphregion(color(white)) plotregion(color(white))
-	graph export "Output/hawk_sd.png", replace
-	restore
-	
 	* construct inflation bins 
 	gen kpif_bin = .
 	replace kpif_bin = 1 if kpif_val < 1.5 // low inflation
@@ -194,7 +155,8 @@ individual governors. */
 	graph export "Output/hawk_res_ma_governor.png", replace
 	
 	* aggregate over governors
-	collapse (mean) hawk_ind res_hawk, by(period)
+	gen res_hawk_sd = res_hawk
+	collapse (mean) hawk_ind res_hawk (sd) res_hawk_sd, by(period)
 	
 	* plot aggregate index
 	twoway (line res_hawk period), ///
@@ -213,3 +175,39 @@ individual governors. */
 	ytitle("Hawkishness index") xtitle("Time") title("") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/hawk_res_ma.png", replace
+	
+	* extract unanimosity data from votes
+	preserve 
+	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting")  cellrange(F56:GI56) clear
+	sxpose, clear force
+	rename _var1 unanimousity
+	destring unanimousity, force replace
+	save "voting_tmp.dta", replace
+	
+	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting") cellrange(F3:GI3) clear
+	sxpose, clear force
+	rename _var1 date
+	destring date, force replace
+	format %td date
+	gen period = mofd(date)
+	format %tm period
+	merge 1:1 _n using "voting_tmp.dta"
+	drop _merge date
+	duplicates drop period, force
+	erase "voting_tmp.dta"
+	save "enighet_tmp.dta", replace
+	restore
+	
+	merge 1:1 period using "enighet_tmp.dta"
+	drop if _merge == 2
+	drop _merge 
+	erase "enighet_tmp.dta"
+	
+	* plot unanimosity and std in hawk index
+	twoway ///
+	(line res_hawk_sd  period) ///
+	(line unanimousity period), ///
+	legend(order(1 "S.D. Hawk Index" 2 "Unanimosity") position(0) bplacement(swest)) ///
+	xtitle("Time") ylabel(0(0.2)1) title("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/hawk_sd.png", replace
