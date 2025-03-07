@@ -212,4 +212,4 @@ individual governors. */
 	legend(off) ///
 	ytitle("Hawkishness index") xtitle("Time") title("") ///
 	graphregion(color(white)) plotregion(color(white))
-	graph export "Output/hawk_res.png", replace
+	graph export "Output/hawk_res_ma.png", replace
