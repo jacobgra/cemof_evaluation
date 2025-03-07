@@ -7,8 +7,8 @@ individual governors. */
 
 	clear all 
 	set more off, permanently
-    cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
-	*cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
+    *cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
+	cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
 	
 ********************************************************************************
 /* Import word count data */
@@ -53,7 +53,7 @@ individual governors. */
 	
 	restore 
 	append using "gov_tmp.dta"
-	erase "gov_tmp.dta
+	erase "gov_tmp.dta"
 	
 	* Merge with inflation time series
 	preserve
