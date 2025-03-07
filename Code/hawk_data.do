@@ -178,11 +178,7 @@ individual governors. */
 	graph export "Output/hawk_res_governor.png", replace
 	
 	* aggregate over governors
-	collapse (sum) hawk_sum-ordsumma (mean) kpif_bin unemp_bin, by(period)
-	
-	gen hawk_ind = ((hawk_sum-dove_sum) / ordsumma) + 1
-	reghdfe hawk_ind, absorb(i.kpif_bin i.unemp_bin) resid 
-	rename _reghdfe_resid res_hawk
+	collapse (mean) hawk_ind res_hawk, by(period)
 	
 	* plot aggregate index
 	twoway (line res_hawk period), ///
