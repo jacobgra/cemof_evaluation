@@ -55,7 +55,7 @@ individual governors. */
 	append using "gov_tmp.dta"
 	erase "gov_tmp.dta"
 	
-	* Merge with inflation time series
+	* Merge with inflation/unemployment time series
 	preserve
 
 	import excel "Data/Other/KPIF.xlsx", clear
@@ -78,12 +78,38 @@ individual governors. */
 
 	save "inf_tmp.dta", replace
 	
+	import excel "Data/Other/swe_unemp.xlsx", sheet("Monthly") clear
+	
+	drop if _n == 1
+	gen nn = _n
+	
+	gen year = substr(A, 6, 4)
+	bysort year (nn): gen month = _n
+	destring year, replace 
+	
+	rename B unemp_val
+	destring unemp_val, replace
+	
+	gen period = ym(year,month)	
+	replace period = period + 1 // lag by one period
+	format %tm period
+	
+	keep period unemp_val 
+	order period unemp_val
+	
+	save "unemp_tmp.dta", replace
+	
 	restore 
 	
 	merge m:1 period using "inf_tmp.dta"
 	keep if _merge == 3
 	drop _merge 
 	erase "inf_tmp.dta"
+	
+	merge m:1 period using "unemp_tmp.dta"
+	keep if _merge == 3
+	drop _merge 
+	erase "unemp_tmp.dta"
 
 	* extracting unanimosity data from votes
 	preserve 
@@ -131,8 +157,14 @@ individual governors. */
 	replace kpif_bin = 3 if kpif_val >= 2.5 & kpif_val < 4 // high inflation
 	replace kpif_bin = 4 if kpif_val >= 4 // very high inflation
 	
-	* extract index residuals by removing governor/kpif_bin averages
-	reghdfe hawk_ind, absorb(kpif_bin) resid 
+	* construct unemployment bins
+	gen unemp_bin = . 
+	replace unemp_bin = 1 if unemp_val < 7 // low unemployment
+	replace unemp_bin = 2 if unemp_val >= 7 & unemp_val < 8 // medium unemployment
+	replace unemp_bin = 3 if unemp_val >= 8 // high unemployment
+	
+	* extract index residuals by removing inflation/unemp averages
+	reghdfe hawk_ind, absorb(i.kpif_bin i.unemp_bin) resid 
 	rename _reghdfe_resid res_hawk
 	
 	* plot indices for specific governors
@@ -146,10 +178,10 @@ individual governors. */
 	graph export "Output/hawk_res_governor.png", replace
 	
 	* aggregate over governors
-	collapse (sum) hawk_sum-ordsumma (mean) kpif_bin, by(period)
+	collapse (sum) hawk_sum-ordsumma (mean) kpif_bin unemp_bin, by(period)
 	
 	gen hawk_ind = ((hawk_sum-dove_sum) / ordsumma) + 1
-	reghdfe hawk_ind, absorb(kpif_bin) resid 
+	reghdfe hawk_ind, absorb(i.kpif_bin i.unemp_bin) resid 
 	rename _reghdfe_resid res_hawk
 	
 	* plot aggregate index
