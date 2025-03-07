@@ -27,7 +27,7 @@ individual governors. */
 	egen geo_sum = rowtotal(geopolitisk-invasion)
 
 	gen ordsumma = hawk_sum + dove_sum 
-	gen hawk_ind = hawk_sum / ordsumma
+	gen hawk_ind = ((hawk_sum-dove_sum) / ordsumma) + 1
 	gen geo_ind = geo_sum
 
 	* Add newer governor data
@@ -47,7 +47,7 @@ individual governors. */
 	egen geo_sum = rowtotal(geopolitisk-invasion)
 
 	gen ordsumma = hawk_sum + dove_sum
-	gen hawk_ind = hawk_sum / ordsumma
+	gen hawk_ind = ((hawk_sum-dove_sum) / ordsumma) + 1
 	gen geo_ind = geo_sum
 	save "gov_tmp.dta", replace
 	
@@ -148,7 +148,7 @@ individual governors. */
 	* aggregate over governors
 	collapse (sum) hawk_sum-ordsumma (mean) kpif_bin, by(period)
 	
-	gen hawk_ind = hawk_sum / ordsumma
+	gen hawk_ind = ((hawk_sum-dove_sum) / ordsumma) + 1
 	reghdfe hawk_ind, absorb(kpif_bin) resid 
 	rename _reghdfe_resid res_hawk
 	
