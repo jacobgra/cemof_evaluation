@@ -23,8 +23,8 @@ individual governors. */
 	sort period
 
 	egen hawk_sum = rowtotal(inflation-växelkurs)
-	egen dove_sum = rowtotal(tillväxt-samhället)
-	egen geo_sum = rowtotal(geopolitisk-osäkerhet)
+	egen dove_sum = rowtotal(tillväxt-arbets)
+	egen geo_sum = rowtotal(geopolitisk-invasion)
 
 	gen ordsumma = hawk_sum + dove_sum 
 	gen hawk_ind = hawk_sum / ordsumma
@@ -43,8 +43,8 @@ individual governors. */
 	sort period
 
 	egen hawk_sum = rowtotal(inflation-växelkurs)
-	egen dove_sum = rowtotal(tillväxt-samhället)
-	egen geo_sum = rowtotal(geopolitisk-osäkerhet)
+	egen dove_sum = rowtotal(tillväxt-arbets)
+	egen geo_sum = rowtotal(geopolitisk-invasion)
 
 	gen ordsumma = hawk_sum + dove_sum
 	gen hawk_ind = hawk_sum / ordsumma

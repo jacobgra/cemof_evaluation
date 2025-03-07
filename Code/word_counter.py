@@ -90,9 +90,9 @@ def main():
         pdf_file = entry.path
         if pdf_file.endswith(".DS_Store"):
             continue
-        hawk_words = ['inflation','kpif','lön','prissättning',  'energi', 'målet', 'olj', 'råvaru', 'livsmedel', 'utbudsstörning','utbud', 'kostnad', 'kron','växelkurs'] #'växelkurs','el'
-        dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur', 'finansiella',  'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig', 'real', 'arbets','samhället' ] #'finans' 'skuld ,'belån'
-        geo_words = ['geopolitisk', 'handelskonflikt','handelshinder','tullar', 'protektionis','osäkerhet']
+        hawk_words = ['inflation','kpif','lön','konsumentpris','producentpris','prissättning','energipris','oljepris','råvarupris','inflationsmål','kostnad','utbudsstörning','kron','växelkurs']
+        dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur','finansiella', 'bnp','skuldsättning','bolån','bostadsmarknad','räntekänslig','real','arbets']
+        geo_words  = ['geopolitisk','handelskonflikt','handelshinder','tullar','protektionis','osäkerhet','krig','invasion']
         words = hawk_words + dove_words + geo_words
         # Get text from PDF source
         text = ''
