@@ -150,20 +150,52 @@ individual governors. */
 	graph export "Output/hawk_res_governor.png", replace
 	
 	* aggregate over governors
-	collapse (sum) hawk_sum-ordsumma (mean) kpif_bin, by(period)
+	collapse (sum) hawk_sum-ordsumma (mean) kpif_bin kpif_val, by(period)
 	
 	gen hawk_ind = hawk_sum / ordsumma
 	gen geo_ind = geo_sum / (ordsumma + geo_sum)
 	gen geo_ind_k = geo_sum_k / (ordsumma + geo_sum_k)
 	reghdfe hawk_ind, absorb(kpif_bin) resid 
 	rename _reghdfe_resid res_hawk
+
+
+	* import data on interest rate decisions
+	* extracting unanimosity data from votes
+	preserve 
+	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting")  cellrange(F27:GI27) clear
+	sxpose, clear force
+	rename _var1 repo
+	destring repo, force replace
+	save "repo_tmp.dta", replace
+	restore
+
+	preserve 
+	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting") cellrange(F3:GI3) clear
+	sxpose, clear force
+	rename _var1 date
+	destring date, force replace
+	format %td date
+	gen period = mofd(date)
+	format %tm period
+	merge 1:1 _n using "repo_tmp.dta", force
+	drop _merge date
+	duplicates drop period, force
+	replace repo = repo*100
+	erase "repo_tmp.dta"
+	save "Data/repo_data.dta", replace
+	restore
 	
+	merge 1:1 period using "Data/repo_data.dta"
+	drop if _merge != 3
+	drop _merge
+
+
 	* plot aggregate index
-	twoway (line res_hawk period), ///
+	twoway (line hawk_ind period, yaxis(1)) (line kpif_val period, yaxis(2)) (line repo period, yaxis(2)), ///
 	legend(off) ///
 	ytitle("Hawkishness index") xtitle("Time") title("") ///
 	graphregion(color(white)) plotregion(color(white))
-	graph export "Output/hawk_res.png", replace
+	graph export "Output/hawk_ind.png", replace
 
 	* plot geo index combined with gpr index
 	merge 1:1 period using "Data/gpr_data.dta"
@@ -175,6 +207,7 @@ individual governors. */
 	ytitle("Geopolitical index") xtitle("Time") title("") legend(order(1 "Base " 2 "With word 'krig'")) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/geo_ind.png", replace
+
 
 	
 	
