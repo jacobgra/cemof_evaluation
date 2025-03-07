@@ -164,6 +164,9 @@ individual governors. */
 	replace unemp_bin = 3 if unemp_val >= 8 // high unemployment
 	
 	* extract index residuals by removing inflation/unemp averages
+	egen gov_id = group(governor)
+	sort gov_id period
+	xtset gov_id period, monthly
 	reghdfe hawk_ind, absorb(i.kpif_bin i.unemp_bin) resid 
 	rename _reghdfe_resid res_hawk
 	
@@ -177,11 +180,35 @@ individual governors. */
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/hawk_res_governor.png", replace
 	
+	* smooth indices for specific governors 
+	tssmooth ma res_hawk_ma = res_hawk, window(2 1 2)
+	
+	* plot smoothed indices 
+	twoway (line res_hawk_ma period if governor == "Martin Flodén") /// 
+	(line res_hawk_ma period if governor == "Per Jansson") ///
+	(line res_hawk_ma period if governor == "Stefan Ingves") ///
+	(line res_hawk_ma period if governor == "Anna Breman"), ///
+	legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Stefan Ingves" 4 "Anna Breman")) ///
+	ytitle("Hawkishness index") xtitle("Time") title("Hawkishness index of individual governors") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/hawk_res_ma_governor.png", replace
+	
 	* aggregate over governors
 	collapse (mean) hawk_ind res_hawk, by(period)
 	
 	* plot aggregate index
 	twoway (line res_hawk period), ///
+	legend(off) ///
+	ytitle("Hawkishness index") xtitle("Time") title("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/hawk_res.png", replace
+	
+	* smooth indices
+	tsset period
+	tssmooth ma res_hawk_ma = res_hawk, window(2 1 2)
+	
+	* plot smoothed aggregate index
+	twoway (line res_hawk_ma period), ///
 	legend(off) ///
 	ytitle("Hawkishness index") xtitle("Time") title("") ///
 	graphregion(color(white)) plotregion(color(white))
