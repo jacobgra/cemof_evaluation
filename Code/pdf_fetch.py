@@ -33,7 +33,7 @@ for year in range(2017,2026):
         with open('./Data/minutes/'+name, 'wb') as f:
             f.write(response.content)
 
-""" Solving issue of 4 misnamed minutes"""
+"""Solving issue of 4 misnamed minutes"""
 wrong_names = ['./Data/minutes/penningpolitiskt-protokoll-april-2021.pdf', 'Data/minutes/penningpolitiskt-protokoll-februari-2023.pdf', 'Data/minutes/penningpolitiskt-protokoll-juni-2024.pdf', 'Data/minutes/penningpolitiskt-protokoll-september-2020.pdf']
 right_names = ['./Data/minutes/penningpolitiskt-protokoll-26-april-2021.pdf', './Data/minutes/penningpolitiskt-protokoll-8-februari-2023.pdf', './Data/minutes/penningpolitiskt-protokoll-26-juni-2024.pdf', './Data/minutes/penningpolitiskt-protokoll-21-september-2020.pdf']
 for i, name in enumerate(wrong_names):
