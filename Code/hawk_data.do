@@ -281,6 +281,7 @@ individual governors. */
 
 	* Run a Taylor rule regression to see if there is explanatory power in the hawkishness index
 	reghdfe repo bnpgap kpif_val res_hawk, noabsorb
+	esttab using "Output/taylor_rule.tex", replace
 
 	* plot aggregate index
 	twoway (line hawk_ind period, yaxis(1)) (line kpif_val period, yaxis(2)) (line repo period, yaxis(2)) (line bnpgap period, yaxis(2)), ///
