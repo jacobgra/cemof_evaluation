@@ -6,8 +6,8 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 
 	clear all 
 	set more off, permanently
-	cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
-	*cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
+	*cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
+	cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
 
 ********************************************************************************
 /* Import data */
@@ -114,6 +114,8 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	order period year quarter bnpgap unemp repo
 
 	sort period
+
+	save "Data/bnp_gap.dta", replace
 	
 	drop if year < 2023
 	
@@ -199,6 +201,8 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	xtitle("") ytitle("") ytitle("") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/gpr_swe.png", replace
+
+	save "Data/gpr_data.dta", replace
 	
 	* Aggregate outcomes and policy rates EA + US
 	
