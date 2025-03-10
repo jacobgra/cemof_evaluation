@@ -287,15 +287,17 @@ individual governors. */
 	ytitle("Hawkishness index") xtitle("Time") title("") legend(order(1 "Hawk index" 2 "KPIF" 3 "Repo" 4 "GDP gap")) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/hawk_ind.png", replace
-
+	
+	
+	/*
 	* plot geo index combined with gpr index
 	merge 1:1 period using "Data/gpr_data.dta"
 	drop if _merge != 3
 	drop _merge
-
+	
 	* plot geo index?
 	twoway (line geo_ind period if period > tm(2020m2), yaxis(1)) (line gpr_swe period, yaxis(2)), ///
 	ytitle("Geopolitical index") xtitle("Time") title("") legend(order(1 "Base " 2 "With word 'krig'")) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/geo_ind.png", replace
-
+	/*
