@@ -233,58 +233,74 @@ individual governors. */
 	xtitle("Time") ylabel(0(0.2)1) title("") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/hawk_sd.png", replace
-
-	* import data on interest rate decisions and gdp gap
-	preserve 
-	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting")  cellrange(F27:GI27) clear
-	sxpose, clear force
-	rename _var1 repo
-	destring repo, force replace
-	save "repo_tmp.dta", replace
-	restore
-
-	preserve 
-	import excel "Data/Other/voting-by-the-executive-board-on-interest-rate-decisions.xlsx", sheet("Voting") cellrange(F3:GI3) clear
-	sxpose, clear force
-	rename _var1 date
-	destring date, force replace
-	format %td date
-	gen period = mofd(date)
-	format %tm period
-	merge 1:1 _n using "repo_tmp.dta", force
-	drop _merge date
-	duplicates drop period, force
-	replace repo = repo*100
-	erase "repo_tmp.dta"
-	save "Data/repo_data.dta", replace
-	restore
 	
-	merge 1:1 period using "Data/repo_data.dta"
-	drop if _merge != 3
-	drop _merge
-
+	* import data on RB policy rate, gdp gap and inflation
+	
 	preserve 
-	use "Data/bnp_gap.dta", clear
-	expand 3
-	sort period quarter
-	gen month = mod(_n-1, 12) + 1
-	drop period
-	gen period = ym(year, month)
+	
+	import excel "Data/Other/potential_resource_util_1990-2025q.xlsx", sheet("F2401") clear
+	
+	keep if _n == 3 | _n == 4
+	sxpose, clear
+	drop if _n < 3
+	
+	gen year    = substr(_var1, 1, 4)
+	gen quarter = substr(_var1, 6, 1)
+	
+	rename _var2 gdp_gap
+	
+	gen exp = 3
+	expand exp
+	bysort year (quarter): gen month = _n
+	
+	destring gdp_gap year, replace
+	
+	gen period = ym(year,month)
 	format %tm period 
-	drop year quarter month
-	save "Data/bnp_gap_m.dta", replace
-	restore
-
-	merge 1:1 period using "Data/bnp_gap_m.dta"
-	drop if _merge != 3
+	
+	keep period gdp_gap 
+	order period gdp_gap 
+	
+	save "gdp_gap_tmp.dta", replace 
+	
+	import excel "Data/Other/RB_styrränta.xlsx", sheet("Exported data") clear
+	
+	gen year = substr(A, 1, 4)
+	destring year, replace force
+	drop if missing(year)
+	drop if year < 2008
+	
+	gen nn = _n
+	bysort year (nn): gen month = _n
+	
+	destring B, gen(repo_rate)
+	
+	gen period = ym(year,month)
+	format %tm period 
+	
+	keep period repo_rate 
+	order period repo_rate 
+	
+	save "repo_tmp.dta", replace 
+	
+	restore 
+	
+	merge 1:1 period using "gdp_gap_tmp.dta"
+	drop if _merge == 2
 	drop _merge
+	erase "gdp_gap_tmp.dta"
+	
+	merge 1:1 period using "repo_tmp.dta"
+	drop if _merge == 2
+	drop _merge
+	erase "repo_tmp.dta"
 
 	* Run a Taylor rule regression to see if there is explanatory power in the hawkishness index
-	reghdfe repo bnpgap kpif_val res_hawk, noabsorb
+	reghdfe repo_rate gdp_gap kpif_val res_hawk, noabsorb
 	esttab using "Output/taylor_rule.tex", replace
 
 	* plot aggregate index
-	twoway (line hawk_ind period, yaxis(1)) (line kpif_val period, yaxis(2)) (line repo period, yaxis(2)) (line bnpgap period, yaxis(2)), ///
+	twoway (line hawk_ind period, yaxis(1)) (line kpif_val period, yaxis(2)) (line repo_rate period, yaxis(2)) (line gdp_gap period, yaxis(2)), ///
 	ytitle("Hawkishness index") xtitle("Time") title("") legend(order(1 "Hawk index" 2 "KPIF" 3 "Repo" 4 "GDP gap")) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/hawk_ind.png", replace
