@@ -424,8 +424,8 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	(line ecb_fct_jun2024 period) ///
 	(line ecb_fct_sep2024 period) ///
 	(line repo period, lpattern(dash)), ///
-	legend(order(1 "Dec23" 2 "Mar24" 3 "Jun24" 4 "Sep24" 5 "Repo")) xtitle("") ///
-	graphregion(color(white)) plotregion(color(white))
+	legend(order(1 "Dec23" 2 "Mar24" 3 "Jun24" 4 "Sep24" 5 "Repo") position(0) bplacement(neast)) ///
+	xtitle("") graphregion(color(white)) plotregion(color(white))
 	graph export "Output/ecb_fct.png", replace
 	
 	twoway ///
@@ -434,7 +434,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	(line fed_fct_jun2024 period) ///
 	(line fed_fct_sep2024 period) ///
 	(line repo period, lpattern(dash)), ///
-	legend(order(1 "Dec23" 2 "Mar24" 3 "Jun24" 4 "Sep24" 5 "Repo")) xtitle("") ///
+	legend(off) xtitle("") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/fed_fct.png", replace
 	
