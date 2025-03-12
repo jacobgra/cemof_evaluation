@@ -37,11 +37,14 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	gen cpif_6m   = ((cpif_ind[_n]/cpif_ind[_n-6])^(12/6) - 1)*100
 
 	drop if period < 762 
+	
+	gen cpi_target = 2
 
 	twoway ///
 	(line cpif_ch period) ///
 	(line cpif_6m period) ///
-	(line cpifxe_ch period), legend(off) ///
+	(line cpifxe_ch period) ///
+	(line cpi_target period, lcolor(black)), legend(off) ///
 	xline(767 769 770 772 774 775 776 778, lcolor(black%30) lpattern(dash)) ///
 	text(8 767.1 "", place(e)) ///
 	text(8 769.1 "", place(e)) ///
@@ -81,11 +84,14 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	sort period
 
 	drop if year < 2024
+	
+	gen cpi_target = 2
 
 	twoway ///
 	(line ie1 period) ///
 	(line ie2 period) ///
-	(line ie5 period), legend(off) ///
+	(line ie5 period) ///
+	(line cpi_target period, lcolor(black)), legend(off) ///
 	text(1.73 259.1 "1Y", place(e)) ///
 	text(1.95 259.1 "2Y", place(e)) ///
 	text(2.05 259.1 "5Y", place(e)) ///
