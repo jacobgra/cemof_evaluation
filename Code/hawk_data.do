@@ -146,7 +146,7 @@ individual governors. */
 	(line res_hawk period if governor == "Anna Seim" & year == 2024) ///
 	(line res_hawk period if governor == "Erik Thedéen" & year == 2024) ///
 	(line res_hawk period if governor == "Anna Breman" & year == 2024), ///
-	legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Aino Bunge" 4 "Anna Seim" 5 "Erik Thedéen" 4 "Anna Breman")) ///
+	legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Aino Bunge" 4 "Anna Seim" 5 "Erik Thedéen" 6 "Anna Breman")) ///
 	ytitle("Hawkishness index") xtitle("Time") title("Hawkishness index of individual governors (2024)") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/hawk_res_governor_2024.png", replace
@@ -159,7 +159,7 @@ individual governors. */
 	(line res_hawk_ma period if governor == "Per Jansson") ///
 	(line res_hawk_ma period if governor == "Stefan Ingves") ///
 	(line res_hawk_ma period if governor == "Anna Breman"), ///
-	legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Stefan Ingves" 6 "Anna Breman")) ///
+	legend( order(1 "Martin Flodén" 2 "Per Jansson" 3 "Stefan Ingves" 4 "Anna Breman")) ///
 	ytitle("Hawkishness index") xtitle("Time") title("Hawkishness index of individual governors") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/hawk_res_ma_governor.png", replace
