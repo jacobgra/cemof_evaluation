@@ -287,7 +287,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	twoway ///
 	(line ea_rat period) ///
 	(line ea_cpi_sh period), legend(off) ///
-	xline(768 770 772 774 775 776 778 779, lcolor(black%30) lpattern(dash)) ///
+	xline(768 770 772 773 775 776 778 779, lcolor(black%30) lpattern(dash)) ///
 	text(4.1 768.1 "", place(e)) ///
 	text(4.1 770.1 "", place(e)) ///
 	text(4.1 772.1 "-.25", place(e)) /// 
@@ -305,7 +305,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	twoway ///
 	(line us_rat period) ///
 	(line us_cpi_sh period), legend(off) ///
-	xline(768 770 772 774 775 776 778 779, lcolor(black%30) lpattern(dash)) ///
+	xline(768 770 772 773 775 776 778 779, lcolor(black%30) lpattern(dash)) ///
 	text(6 768.1 "", place(e)) ///
 	text(6 770.1 "", place(e)) ///
 	text(6 772.1 "-.25", place(e)) /// 
