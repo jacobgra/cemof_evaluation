@@ -114,8 +114,6 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	order period year quarter bnpgap unemp repo
 
 	sort period
-
-	save "Data/bnp_gap.dta", replace
 	
 	drop if year < 2023
 	
