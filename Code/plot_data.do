@@ -287,14 +287,15 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	twoway ///
 	(line ea_rat period) ///
 	(line ea_cpi_sh period), legend(off) ///
-	xline(769 770 772 774 775 776 778, lcolor(black%30) lpattern(dash)) ///
-	text(4.1 769.1 "", place(e)) ///
-	text(4.1 770.1 "-.25", place(e)) ///
-	text(4.1 772.1 "", place(e)) /// 
-	text(4.1 774.1 "-.25", place(e)) /// 
+	xline(768 770 772 774 775 776 778 779, lcolor(black%30) lpattern(dash)) ///
+	text(4.1 768.1 "", place(e)) ///
+	text(4.1 770.1 "", place(e)) ///
+	text(4.1 772.1 "-.25", place(e)) /// 
+	text(4.1 773.1 "", place(e)) /// 
 	text(4.1 775.1 "-.25", place(e)) ///
-	text(4.1 776.1 "-.5", place(e)) ///
-	text(4.1 778.1 "-.25", place(e)) ///
+	text(4.1 776.1 "-.25", place(e)) ///
+	text(4.1 778.1 "-.5", place(e)) ///
+	text(4.1 779.1 "-.25", place(e)) ///
 	text(3.15 779.05 "ECB Rate", place(e)) ///
 	text(2.25 779.05 "EA CPI", place(e)) ///
 	xtitle("") xlabel(, nogrid) ylabel(1.5(0.5)4.1, nogrid) ///
@@ -304,14 +305,15 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	twoway ///
 	(line us_rat period) ///
 	(line us_cpi_sh period), legend(off) ///
-	xline(769 770 772 774 775 776 778, lcolor(black%30) lpattern(dash)) ///
-	text(6 769.1 "", place(e)) ///
-	text(6 770.1 "-.25", place(e)) ///
-	text(6 772.1 "", place(e)) /// 
-	text(6 774.1 "-.25", place(e)) /// 
+	xline(768 770 772 774 775 776 778 779, lcolor(black%30) lpattern(dash)) ///
+	text(6 768.1 "", place(e)) ///
+	text(6 770.1 "", place(e)) ///
+	text(6 772.1 "-.25", place(e)) /// 
+	text(6 773.1 "", place(e)) /// 
 	text(6 775.1 "-.25", place(e)) ///
-	text(6 776.1 "-.5", place(e)) ///
-	text(6 778.1 "-.25", place(e)) ///
+	text(6 776.1 "-.25", place(e)) ///
+	text(6 778.1 "-.5", place(e)) ///
+	text(6 779.1 "-.25", place(e)) ///
 	text(4.68 779.05 "Fed Rate", place(e)) ///
 	text(2.75 779.05 "US CPI", place(e)) ///
 	xtitle("") xlabel(, nogrid) ylabel(, nogrid) ///
