@@ -180,6 +180,13 @@ individual governors. */
 	gen res_hawk_sd = res_hawk
 	collapse (mean) hawk_ind res_hawk kpif_val (sd) res_hawk_sd, by(period)
 	
+	* plot raw index
+	twoway (line hawk_ind period), ///
+	legend(off) ///
+	ytitle("Hawkishness index (non-residualized)") xtitle("Time") title("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/hawk_ind.png", replace
+	
 	* plot aggregate index
 	twoway (line res_hawk period), ///
 	legend(off) ///
@@ -303,7 +310,7 @@ individual governors. */
 	twoway (line hawk_ind period, yaxis(1)) (line kpif_val period, yaxis(2)) (line repo_rate period, yaxis(2)) (line gdp_gap period, yaxis(2)), ///
 	ytitle("Hawkishness index") xtitle("Time") title("") legend(order(1 "Hawk index" 2 "KPIF" 3 "Repo" 4 "GDP gap")) ///
 	graphregion(color(white)) plotregion(color(white))
-	graph export "Output/hawk_ind.png", replace
+	graph export "Output/hawk_ind_cpi_repo_gdp.png", replace
 	
 	
 	/*
