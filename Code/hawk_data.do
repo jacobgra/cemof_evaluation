@@ -429,7 +429,7 @@ individual governors. */
 	twoway (line res_hawk_ma period) ///
 	(line res_hawk_alts_ma period) ///
 	(line res_hawk_feww_ma period), ///
-	legend(order(1 "Baseline" 2 "Shorter Sample" 3 "Less Words")) ///
+	legend(order(1 "Baseline" 2 "Shorter Sample" 3 "Less Words") position(0) bplacement(seast)) ///
 	ytitle("Hawkishness index") xtitle("Time") title("") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/hawk_res_ma_robcheck.png", replace
