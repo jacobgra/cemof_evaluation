@@ -51,7 +51,7 @@ individual governors. */
 	
 	restore 
 	append using "gov_tmp.dta"
-	erase "gov_tmp.dta"
+	save "gov_tmp.dta", replace
 	
 	* Merge with inflation/unemployment time series
 	preserve
@@ -102,12 +102,10 @@ individual governors. */
 	merge m:1 period using "inf_tmp.dta"
 	keep if _merge == 3
 	drop _merge 
-	erase "inf_tmp.dta"
 	
 	merge m:1 period using "unemp_tmp.dta"
 	keep if _merge == 3
 	drop _merge 
-	erase "unemp_tmp.dta"
 	
 	drop if period < 659 // consistent monetary policy minutes this period
 
@@ -199,6 +197,8 @@ individual governors. */
 	* smooth indices
 	tsset period
 	tssmooth ma res_hawk_ma = res_hawk, window(2 1 2)
+	
+	save "hawk_tmp.dta", replace 
 	
 	* plot smoothed aggregate index
 	twoway (line res_hawk_ma period), ///
@@ -326,4 +326,110 @@ individual governors. */
 	ytitle("Geopolitical index") xtitle("Time") title("") legend(order(1 "Base " 2 "With word 'krig'")) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/geo_ind.png", replace
-	/*
+	*/
+	
+	* perform robustness checks 
+	* note: want to check both that the results are robust to the chosen 
+	* dictionary as well as to the sample period
+		
+	import delimited "Data/old_governors_data_fewword.csv", clear
+    gen date_var = date(date, "YMD")
+	gen year  = year(date_var)
+	gen month = month(date_var)
+	gen period = ym(year, month)
+	
+	format %tm period 
+	sort period
+
+	egen hawk_sum = rowtotal(inflation-växelkurs)
+	egen dove_sum = rowtotal(tillväxt-arbets)
+	egen geo_sum = rowtotal(geopolitisk-invasion)
+
+	gen ordsumma = hawk_sum + dove_sum 
+	gen hawk_ind = ((hawk_sum-dove_sum) / ordsumma) + 1
+
+	* Add newer governor data
+	preserve
+
+	import delimited "Data/governors_data_fewword.csv", clear
+ 	gen date_var = date(date, "YMD")
+	gen year  = year(date_var)
+	gen month = month(date_var)
+	gen period = ym(year, month)
+	
+	format %tm period 
+	sort period
+
+	egen hawk_sum = rowtotal(inflation-växelkurs)
+	egen dove_sum = rowtotal(tillväxt-arbets)
+	egen geo_sum = rowtotal(geopolitisk-invasion)
+
+	gen ordsumma = hawk_sum + dove_sum
+	gen hawk_ind = ((hawk_sum-dove_sum) / ordsumma) + 1
+	save "govalt_tmp.dta", replace
+	
+	restore 
+	append using "govalt_tmp.dta"
+	erase "govalt_tmp.dta"
+	
+	keep date governor period hawk_ind 
+	rename hawk_ind hawk_ind_feww
+	
+	merge 1:1 period governor using "gov_tmp.dta", keepusing(hawk_ind)
+	drop _merge 
+	erase "gov_tmp.dta"
+	
+	merge m:1 period using "inf_tmp.dta"
+	keep if _merge == 3
+	drop _merge
+	erase "inf_tmp.dta"
+	
+	merge m:1 period using "unemp_tmp.dta"
+	keep if _merge == 3
+	drop _merge 
+	erase "unemp_tmp.dta"
+	
+	drop if period < 659 // consistent monetary policy minutes this period
+	replace hawk_ind = . if period < 709 // robustness wrt sample period
+
+	* construct inflation bins 
+	gen kpif_bin = .
+	replace kpif_bin = 1 if kpif_val < 1.5 // low inflation
+	replace kpif_bin = 2 if kpif_val >= 1.5 & kpif_val < 2.5 // inflation at target
+	replace kpif_bin = 3 if kpif_val >= 2.5 & kpif_val < 4 // high inflation
+	replace kpif_bin = 4 if kpif_val >= 4 // very high inflation
+	
+	* construct unemployment bins
+	gen unemp_bin = . 
+	replace unemp_bin = 1 if unemp_val < 7 // low unemployment
+	replace unemp_bin = 2 if unemp_val >= 7 & unemp_val < 8 // medium unemployment
+	replace unemp_bin = 3 if unemp_val >= 8 // high unemployment
+	
+	* extract index residuals by removing inflation/unemp averages
+	egen gov_id = group(governor)
+	sort gov_id period
+	xtset gov_id period, monthly
+	reghdfe hawk_ind, absorb(i.kpif_bin i.unemp_bin) resid 
+	rename _reghdfe_resid res_hawk
+	reghdfe hawk_ind_feww, absorb(i.kpif_bin i.unemp_bin) resid 
+	rename _reghdfe_resid res_hawk_feww
+	
+	collapse (mean) res_hawk res_hawk_feww, by(period)
+	
+	* smooth indices
+	tsset period
+	tssmooth ma res_hawk_alts_ma      = res_hawk, window(2 1 2)
+	tssmooth ma res_hawk_feww_ma = res_hawk_feww, window(2 1 2)
+	
+	merge 1:1 period using "hawk_tmp.dta", keepusing(res_hawk_ma)
+	drop _merge 
+	erase "hawk_tmp.dta"
+	
+	* plot robustness check
+	twoway (line res_hawk_ma period) ///
+	(line res_hawk_alts_ma period) ///
+	(line res_hawk_feww_ma period), ///
+	legend(order(1 "Baseline" 2 "Shorter Sample" 3 "Less Words")) ///
+	ytitle("Hawkishness index") xtitle("Time") title("") ///
+	graphregion(color(white)) plotregion(color(white))
+	graph export "Output/hawk_res_ma_robcheck.png", replace

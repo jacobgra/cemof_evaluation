@@ -94,6 +94,9 @@ def main():
             continue
         hawk_words = ['inflation','kpif','konsumentpris','producentpris','energipris','oljepris','råvarupris','utbudsstörning','kron','växelkurs']
         dove_words = ['tillväxt','resursutnyttjande','sysselsättning','konjunktur','finansiella', 'bnp','skuldsättning','bostadsmarknad','arbets','real']
+        # robustness with fewer words
+        #hawk_words = ['inflation','konsumentpris','energipris','växelkurs']
+        #dove_words = ['tillväxt','sysselsättning','konjunktur','arbets']
         geo_words  = ['geopolitisk','handelskonflikt','handelshinder','tullar','protektionis','osäkerhet','krig','invasion']
         words = hawk_words + dove_words + geo_words
         # Get text from PDF source
