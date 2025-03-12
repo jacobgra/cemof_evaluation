@@ -6,8 +6,8 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 
 	clear all 
 	set more off, permanently
-	*cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
-	cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
+	cd "/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation"
+	*cd "/Users/jacob/SU/PhD/Projects/cemof_evaluation"
 
 ********************************************************************************
 /* Import data */
