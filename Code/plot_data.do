@@ -125,14 +125,16 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	
 	twoway ///
 	(line bnpgap period, yaxis(1)) ///
-	(line repo period, yaxis(2)), legend(order(1 "GDP Gap (L)" 2 "Policy Rate (R)")) ///
+	(line repo period, yaxis(2)), ///
+	legend(order(1 "GDP Gap (L)" 2 "Policy Rate (R)") position(0) bplacement(swest)) ///
 	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) xlabel(252(2)259) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/bnpgap.png", replace
 	
 	twoway ///
 	(line unemp period, yaxis(1)) ///
-	(line repo period, yaxis(2)), legend(order(1 "Unemp. (L)" 2 "Policy Rate (R)")) ///
+	(line repo period, yaxis(2)), ///
+	legend(order(1 "Unemp. (L)" 2 "Policy Rate (R)") position(0) bplacement(seast)) ///
 	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) xlabel(252(2)259) ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/unemp.png", replace
