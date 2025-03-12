@@ -108,6 +108,8 @@ individual governors. */
 	keep if _merge == 3
 	drop _merge 
 	erase "unemp_tmp.dta"
+	
+	drop if period < 659 // consistent monetary policy minutes this period
 
 	* construct inflation bins 
 	gen kpif_bin = .
