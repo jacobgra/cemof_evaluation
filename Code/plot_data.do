@@ -125,7 +125,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	
 	twoway ///
 	(line bnpgap period, yaxis(1)) ///
-	(line repo period, yaxis(2)), ///
+	(line repo period, yaxis(2) connect(J)), ///
 	legend(order(1 "GDP Gap (L)" 2 "Policy Rate (R)") position(0) bplacement(swest)) ///
 	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) xlabel(252(2)259) ///
 	graphregion(color(white)) plotregion(color(white))
@@ -133,7 +133,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	
 	twoway ///
 	(line unemp period, yaxis(1)) ///
-	(line repo period, yaxis(2)), ///
+	(line repo period, yaxis(2) connect(J)), ///
 	legend(order(1 "Unemp. (L)" 2 "Policy Rate (R)") position(0) bplacement(seast)) ///
 	xtitle("") ytitle("", axis(1)) ytitle("", axis(2)) xlabel(252(2)259) ///
 	graphregion(color(white)) plotregion(color(white))
@@ -285,7 +285,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	drop if year < 2024
 	
 	twoway ///
-	(line ea_rat period) ///
+	(line ea_rat period, connect(J)) ///
 	(line ea_cpi_sh period), legend(off) ///
 	xline(768 770 772 773 775 776 778 779, lcolor(black%30) lpattern(dash)) ///
 	text(4.1 768.1 "", place(e)) ///
@@ -303,7 +303,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	graph export "Output/ea_rat_cpi.png", replace
 	
 	twoway ///
-	(line us_rat period) ///
+	(line us_rat period, connect(J)) ///
 	(line us_cpi_sh period), legend(off) ///
 	xline(768 770 772 773 775 776 778 779, lcolor(black%30) lpattern(dash)) ///
 	text(6 768.1 "", place(e)) ///
@@ -321,7 +321,7 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	graph export "Output/us_rat_cpi.png", replace
 	
 	twoway ///
-	(line us_rat period) ///
+	(line us_rat period, connect(J)) ///
 	(line us_unemp period), legend(off) ///
 	text(4.64 779.05 "Fed Rate", place(e)) ///
 	text(4.1 779.05 "US UR", place(e)) ///
@@ -419,21 +419,21 @@ Plot various time series data related to the Riksbank's policy in 2024. */
 	drop if year > 2027
 	
 	twoway ///
-	(line ecb_fct_dec2023 period) ///
-	(line ecb_fct_mar2024 period) ///
-	(line ecb_fct_jun2024 period) ///
-	(line ecb_fct_sep2024 period) ///
-	(line repo period, lpattern(dash)), ///
+	(line ecb_fct_dec2023 period, connect(J)) ///
+	(line ecb_fct_mar2024 period, connect(J)) ///
+	(line ecb_fct_jun2024 period, connect(J)) ///
+	(line ecb_fct_sep2024 period, connect(J)) ///
+	(line repo period, lpattern(dash) connect(J)), ///
 	legend(order(1 "Dec23" 2 "Mar24" 3 "Jun24" 4 "Sep24" 5 "Repo") position(0) bplacement(neast)) ///
 	xtitle("") graphregion(color(white)) plotregion(color(white))
 	graph export "Output/ecb_fct.png", replace
 	
 	twoway ///
-	(line fed_fct_dec2023 period) ///
-	(line fed_fct_mar2024 period) ///
-	(line fed_fct_jun2024 period) ///
-	(line fed_fct_sep2024 period) ///
-	(line repo period, lpattern(dash)), ///
+	(line fed_fct_dec2023 period, connect(J)) ///
+	(line fed_fct_mar2024 period, connect(J)) ///
+	(line fed_fct_jun2024 period, connect(J)) ///
+	(line fed_fct_sep2024 period, connect(J)) ///
+	(line repo period, lpattern(dash) connect(J)), ///
 	legend(off) xtitle("") ///
 	graphregion(color(white)) plotregion(color(white))
 	graph export "Output/fed_fct.png", replace
