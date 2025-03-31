@@ -8,8 +8,8 @@ import os
 import pandas as pd
 
 # set directory
-from os import chdir
-chdir('/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation')
+#from os import chdir
+#chdir('/Users/edvinahlander/Library/CloudStorage/OneDrive-StockholmUniversity/PhD/Year 2/Courses/Monetary/Assignments/RB Evaluation/cemof_evaluation')
 
 def extract_date(filename):
     pattern = r"([0-9]*)?-([a-z]*)-([0-9]*)(?=.pdf)"
